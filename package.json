@@ -1,0 +1,22 @@
+{
+  "name": "lorawan-coordinator",
+  "version": "1.0.0",
+  "description": "Coordinates sleep and transmission times for lorawan nodes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinkomlacic/lorawan-coordinator.git"
+  },
+  "author": "vmlacic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vinkomlacic/lorawan-coordinator/issues"
+  },
+  "homepage": "https://github.com/vinkomlacic/lorawan-coordinator#readme",
+  "dependencies": {
+    "vorpal": "^1.12.0"
+  }
+}
