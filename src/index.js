@@ -1,19 +1,15 @@
-'use strict'
+'use strict';
 
-const result = require('dotenv').config();
+let result = require('dotenv').config();
 if (result.error) throw result.error;
 
 if (process.env.DEBUG) console.log('Debug mode enabled.');
 
-const vorpal = require('vorpal')();
-// Example command
-vorpal
-  .command('foo', 'Outputs "bar".')
-  .action(function(args, callback) {
-    this.log('bar');
-    callback();
-  });
+// Initialize database.
+result = require('./database')();
+if (result.error) throw result.error;
+const {bookshelf} = result;
 
-vorpal
-  .delimiter('coordinator$')
-  .show();
+// Initialize Vorpal CLI.
+result = require('./initVorpal')(bookshelf);
+if (result.error) throw result.error;

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,14 @@
     "bookshelf": "^0.14.2",
     "dotenv": "^7.0.0",
     "knex": "^0.13.0",
+    "mysql": "^2.17.1",
     "ttn": "^2.3.2",
     "vorpal": "^1.12.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.12.0",
+    "mocha": "^6.1.4"
   }
 }
