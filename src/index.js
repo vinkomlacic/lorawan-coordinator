@@ -1,15 +1,12 @@
 'use strict';
-
-let result = require('dotenv').config();
-if (result.error) throw result.error;
-
 if (process.env.DEBUG) console.log('Debug mode enabled.');
 
 // Initialize database.
-result = require('./database')();
-if (result.error) throw result.error;
-const {bookshelf} = result;
+const bookshelf = require('./database');
+
+// Initalize models
+const models = require('./model');
 
 // Initialize Vorpal CLI.
-result = require('./initVorpal')(bookshelf);
+const result = require('./initVorpal')(bookshelf, models);
 if (result.error) throw result.error;

@@ -1,11 +1,11 @@
 /**
  * Initializes vorpal instance.
  */
-const ttnCallbacks = require('./ttnCallbacks');
+const ttnCallbacks = require('./service/ttnCallbacks');
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 
-module.exports = function(bookshelf) {
+module.exports = function(bookshelf, models) {
   let dataClient;
   try {
     vorpal
@@ -38,6 +38,21 @@ module.exports = function(bookshelf) {
           }
 
           callback();
+        });
+
+    vorpal
+        .command('node list', 'Lists all active nodes.')
+        .alias('nl')
+        .action(async function(args, callback) {
+          const nodes = await models.Node.fetchAll();
+
+          nodes.forEach((node) => {
+            this.log('Id' + node.get('id'));
+            this.log('Dev id: ' + node.get('dev_id'));
+            this.log('Node status: ' + node.get('node_status'));
+            this.log('Created at: ' + node.get('created_at'));
+            this.log('Updated at: ' + node.get('updated_at'));
+          });
         });
 
     vorpal
