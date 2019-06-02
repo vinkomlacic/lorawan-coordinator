@@ -1,5 +1,5 @@
 const {expect} = require('chai');
-const ttnCallback = require('../src/service/ttnCallbacks');
+const ttnCallback = require('../src/service/TTNCallbacks');
 
 describe('TTN event handler callback tests.', () => {
   const devId = 'testDevId';

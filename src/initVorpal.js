@@ -1,7 +1,7 @@
 /**
  * Initializes vorpal instance.
  */
-const ttnCallbacks = require('./service/ttnCallbacks');
+const ttnCallbacks = require('./service/TTNCallbacks');
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 
@@ -16,7 +16,7 @@ module.exports = function(bookshelf, models) {
           data(process.env.TTN_APP_ID, process.env.TTN_ACCESS_KEY)
               .then((client) => {
                 dataClient = client;
-                client.on('uplink', ttnCallbacks.onUplink(this, bookshelf));
+                client.on('uplink', ttnCallbacks.onUplink(this, bookshelf, models));
               })
               .catch((err) => {
                 this.log(err);
@@ -46,7 +46,7 @@ module.exports = function(bookshelf, models) {
         .action(async function(args, callback) {
           const nodes = await models.Node.fetchAll();
 
-          nodes.forEach((node) => {
+          nodes.where({node_status: 'ACTIVE'}).forEach((node) => {
             this.log('Id' + node.get('id'));
             this.log('Dev id: ' + node.get('dev_id'));
             this.log('Node status: ' + node.get('node_status'));
@@ -56,8 +56,16 @@ module.exports = function(bookshelf, models) {
         });
 
     vorpal
+        .command('env', 'Lists all environment variables.')
+        .action(function(args, callback) {
+          this.log(process.env);
+        });
+
+    vorpal
         .delimiter('coordinator$')
         .show();
+
+    vorpal.log('Lorawan-coordinator attached to host CLI.');
   } catch (e) {
     return {
       error: e,
