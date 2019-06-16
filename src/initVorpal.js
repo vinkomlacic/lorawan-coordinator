@@ -1,13 +1,20 @@
 /**
  * Initializes vorpal instance.
  */
-const ttnCallbacks = require('./service/TTNCallbacks');
+const {
+  TTNCallbacks,
+  AppConfigService,
+  CoordinatorService,
+  NodeService,
+} = require('./service');
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 
-module.exports = function(bookshelf, models) {
+module.exports = function() {
   let dataClient;
   try {
+    AppConfigService.initializeAppConfiguration(vorpal);
+
     vorpal
         .command('connect', 'Attaches a handler to TTN events.')
         .action(function(args, callback) {
@@ -16,7 +23,8 @@ module.exports = function(bookshelf, models) {
           data(process.env.TTN_APP_ID, process.env.TTN_ACCESS_KEY)
               .then((client) => {
                 dataClient = client;
-                client.on('uplink', ttnCallbacks.onUplink(this, bookshelf, models));
+                client.on('uplink', TTNCallbacks.onUplink(this, client));
+                client.on('activation', TTNCallbacks.onActivation(this, client));
               })
               .catch((err) => {
                 this.log(err);
@@ -41,24 +49,66 @@ module.exports = function(bookshelf, models) {
         });
 
     vorpal
-        .command('node list', 'Lists all active nodes.')
-        .alias('nl')
+        .command('nodes', 'Lists all nodes.')
+        .option('-a, --active', 'List only active nodes.')
+        .option('-p, --passive', 'List only passive nodes.')
         .action(async function(args, callback) {
-          const nodes = await models.Node.fetchAll();
-
-          nodes.where({node_status: 'ACTIVE'}).forEach((node) => {
-            this.log('Id' + node.get('id'));
-            this.log('Dev id: ' + node.get('dev_id'));
-            this.log('Node status: ' + node.get('node_status'));
-            this.log('Created at: ' + node.get('created_at'));
-            this.log('Updated at: ' + node.get('updated_at'));
+          await NodeService.listNodes({
+            ...args.options,
+            logger: this,
           });
+          callback();
+        });
+
+    vorpal
+        .command('config set maximum_allowed_error', 'Sets maximum allowed error')
+        .action(async function(args, callback) {
+          await AppConfigService.setMaximumAllowedErrorValue(args[0]);
+          callback();
+        });
+
+    vorpal
+        .command('config set sleep_period', 'Sets the sleep period.')
+        .action(async function(args, callback) {
+          await AppConfigService.setSleepPeriodValue(args[0]);
+          callback();
+        });
+
+    vorpal
+        .command('config get maximum_allowed_error', 'Prints maximum allowed error.')
+        .action(async function(args, callback) {
+          const mae = await AppConfigService.getMaximumAllowedErrorValue();
+          this.log(mae);
+          callback();
+        });
+
+    vorpal
+        .command('config get sleep_period', 'Prints sleep period.')
+        .action(async function(args, callback) {
+          const sleepPeriod = await AppConfigService.getSleepPeriodValue();
+          this.log(sleepPeriod);
+          callback();
+        });
+
+    vorpal
+        .command('config list', 'Prints all configuration options.')
+        .action(function(args, callback) {
+          AppConfigService.printConfigurationParameters(this);
+          callback();
         });
 
     vorpal
         .command('env', 'Lists all environment variables.')
         .action(function(args, callback) {
           this.log(process.env);
+          callback();
+        });
+
+    vorpal
+        .command('test', 'Placeholder for testing functions.')
+        .action(function(args, callback) {
+          CoordinatorService.activate(null, null, this);
+          callback();
         });
 
     vorpal

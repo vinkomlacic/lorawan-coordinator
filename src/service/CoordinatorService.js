@@ -3,70 +3,94 @@
  * Module which contains functions used for coordinating nodes' sleep and
  * wakeup times.
  */
-const {
-  AppConfig,
-  Node,
-  TimePoint,
-} = require('../model');
+const {checkIfNodeExists} = require('./NodeService');
+const {createAndSaveNextAvailableTimePoint} = require('./TimePointService');
+const AppConfigService = require('./AppConfigService');
+const Payload = require('./Payload');
+
+/**
+ * Handles node activation:
+ *    - creates a new node with this dev id
+ *    - allocates a new time point for it to send next time
+ *    - schedules downlink to send offset
+ * @param {Object} data data packed from TTN
+ * @param {String} devId developer id for the node
+ * @param {Object} ttnClient object required for TTN communication
+ * @param {Object} [logger=console] object required for logging
+ */
+const activate = async (data, devId, ttnClient, logger = console) => {
+  logger.log('Activating ' + devId + ' ...');
+
+  const node = await checkIfNodeExists(devId, logger);
+  const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
+  const nextTimePoint = await createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
+
+  node.set({time_point: node.get('next_time_point')});
+  node.set({next_time_point: nextTimePoint});
+
+  await node.save();
+
+  const gatewayTime = new Date(data.metadata.gateways[0].time).getTime();
+  const nextTimePointTime = new Date(nextTimePoint.get('time')).getTime();
+  const offsetSeconds = Math.floor((nextTimePointTime - gatewayTime) / 1000);
+
+  sendOffset(ttnClient, offsetSeconds, logger);
+  logger.log('Device: ' + devId + ' activated.');
+};
 
 /**
   * @param {Object} data Data received from sensor node.
   * @param {string} devId Device id.
+  * @param {Object} ttnClient TTN client
   * @param {Object} logger Logger object.
   * @async
-  * @todo Refactor to smaller functions.
   */
-const coordinate = async (data, devId, logger) => {
-  // TODO: change this to real gateway time. This is from metadata.
-  const gatewayTime = new Date(data.metadata.time);
+const coordinate = async (data, devId, ttnClient, logger = console) => {
+  const node = await NodeService.checkIfNodeExists(devId);
 
-  let node;
-  try {
-    node = await checkIfNodeExists(devId);
-  } catch (e) {
-    node = await createNewNode(devId);
+  const gatewayTime = new Date(data.metadata.gateways[0].time);
+  const projectedWakeupTimePoint = node.related('nextTimePoint');
+
+  if (!projectedWakeupTimePoint) {
+    throw new Error('Unable to fetch next time point for node: ' + devId);
   }
 
-  let lastWakeupTimePoint = await node.get('time_point');
+  const projectedWakeupTime = new Date(projectedWakeupTimePoint.get('time'));
 
-  if (!lastWakeupTimePoint) {
-    lastWakeupTimePoint = await createNewTimePoint(gatewayTime);
-  }
+  const maxAllowedError = await AppConfigService.getMaximumAllowedErrorValue();
+  const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
 
-  const lastWakeupTime = new Date(lastWakeupTimePoint.get('time'));
-
-  const maxAllowedError = await new AppConfig({key: 'MAXIMUM_ALLOWED_ERROR'})
-      .fetch()
-      .then((appConfigItem) => parseInt(appConfigItem.get('value')));
-
-  const sleepPeriod = await new AppConfig({key: 'SLEEP_PERIOD'})
-      .fetch()
-      .then((appConfigItem) => parseInt(appConfigItem.get('value')));
-
-  if (Math.abs(gatewayTime.getTime() - lastWakeupTime.getTime()) > maxAllowedError) {
-    lastWakeupTimePoint.set({time: gatewayTime});
-  }
-
-  let nextWakeupTimePoint = await createNewTimePoint(
-      new Date(lastWakeupTime.getTime() + sleepPeriod*1000),
+  let nextWakeupTimePoint = await TimePointService.createNewTimePoint(
+      new Date(projectedWakeupTime.getTime() + sleepPeriodSeconds * 1000),
+      node.get('id')
   );
 
   // Persist entities to db.
   try {
     node = await node.save();
-    lastWakeupTimePoint = await lastWakeupTimePoint.save({
-      node_id: node.get('id'),
-    });
     nextWakeupTimePoint = await nextWakeupTimePoint.save({
       node_id: node.get('id'),
     });
     node = await node.save({
-      time_point_id: lastWakeupTimePoint.get('id'),
+      time_point_id: projectedWakeupTime.get('id'),
       next_time_point_id: nextWakeupTimePoint.get('id'),
     });
   } catch (e) {
-    logger.log('Database exception.');
-    logger.log(e);
+    logger.error('Database exception.');
+    logger.error(e);
+  }
+
+  let delta;
+  try {
+    delta = calculateDelta(
+        projectedWakeupTime.getTime(),
+        gatewayTime.getTime(),
+        maxAllowedError
+    );
+    sendOffset(ttnClient, -delta, logger);
+  } catch (e) {
+    logger.error(e);
+    activate(data, devId, ttnClient, logger);
   }
 
   // Debug printout
@@ -79,47 +103,30 @@ const coordinate = async (data, devId, logger) => {
   }
 };
 
-/**
- * Check if node with the specified device id exists.
- * @param {string} devId Device id.
- * @throws {Error} if the node does not exist.
- * @return {Object} node Model of the found node.
- */
-const checkIfNodeExists = async (devId) => {
-  const node = await new Node({dev_id: devId}).fetch({
-    withRelated: ['time_point'],
-  });
+const sendOffset = (ttnClient, offsetSeconds, logger = console) => {
+  const payload = new Payload(Payload.getDataTypes().OFFSET);
+  payload.setDataValue(offsetSeconds.toString(16));
 
-  if (!node) throw Error('Node does not exist.');
-
-  return node;
+  ttnClient.send(payload.hexString());
+  logger.log('Sent offset to device. Offset value: ' + offsetSeconds);
 };
 
-/**
- * Insert a new node in the database.
- * @param {string} devId Device ID.
- * @async
- * @return {Bookshelf.Model} instance of newly created model.
- */
-const createNewNode = async (devId) => {
-  return Node.forge({
-    dev_id: devId,
-    node_status: 'ACTIVE',
-  });
-};
+const calculateDelta = (
+    projectedGatewayTimeMillis,
+    gatewayTimeMillis,
+    maximumAllowedErrorSeconds,
+) => {
+  const delta = Math.floor((gatewayTimeMillis - projectedGatewayTimeMillis) / 1000);
 
-/**
- * @param {Date} timeValue Time value.
- */
-const createNewTimePoint = async (timeValue) => {
-  return TimePoint.forge({
-    time: timeValue,
-    collision_detected: false,
-  });
+  if (delta > maximumAllowedErrorSeconds) {
+    throw new Error('Delta is too large.');
+  }
+
+  return delta;
 };
 
 
 module.exports = {
   coordinate,
+  activate,
 };
-

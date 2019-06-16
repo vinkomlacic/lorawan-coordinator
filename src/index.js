@@ -5,10 +5,6 @@ if (process.env.DEBUG) console.log('Debug mode enabled.');
 const bookshelf = require('./database');
 if (bookshelf) console.log('Database initialized.');
 
-// Initalize models
-const models = require('./model');
-if (models) console.log('Models initialized.');
-
 // Initialize Vorpal CLI.
-const result = require('./initVorpal')(bookshelf, models);
+const result = require('./initVorpal')();
 if (result.error) throw result.error;
