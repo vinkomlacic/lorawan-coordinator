@@ -16,11 +16,16 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 DROP DATABASE IF EXISTS `lorawan_coordinator_dev`;
-CREATE DATABASE `lorawan_coordinator_dev`
+CREATE DATABASE `lorawan_coordinator_dev`;
 
-USE `lorawan_coordinator_dev`
+USE `lorawan_coordinator_dev`;
 
---
+CREATE USER 'vmlacic'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL ON *.* TO 'vmlacic'@'localhost' WITH GRANT OPTION;
+
+CREATE USER 'vmlacic'@'lorawan_coordinator' IDENTIFIED BY 'password';
+GRANT ALL ON *.* TO 'vmlacic'@'lorawan_coordinator' WITH GRANT OPTION;
+
 -- Table structure for table `app_config`
 --
 DROP TABLE IF EXISTS `app_config`;
@@ -31,7 +36,7 @@ CREATE TABLE `app_config` (
   `value` text,
   `default_value` text,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +61,7 @@ CREATE TABLE `knex_migrations` (
   `batch` int(11) DEFAULT NULL,
   `migration_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +82,7 @@ DROP TABLE IF EXISTS `knex_migrations_lock`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `knex_migrations_lock` (
   `is_locked` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +106,7 @@ CREATE TABLE `nodes` (
   `time_point_id` int(10) unsigned DEFAULT NULL,
   `next_time_point_id` int(10) unsigned DEFAULT NULL,
   `dev_id` varchar(255) DEFAULT NULL,
-  `node_status` enum('ACTIVE') DEFAULT NULL,
+  `node_status` enum('ACTIVE', 'PASSIVE') DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -109,7 +114,7 @@ CREATE TABLE `nodes` (
   KEY `nodes_next_time_point_id_foreign` (`next_time_point_id`),
   CONSTRAINT `nodes_next_time_point_id_foreign` FOREIGN KEY (`next_time_point_id`) REFERENCES `time_points` (`id`),
   CONSTRAINT `nodes_time_point_id_foreign` FOREIGN KEY (`time_point_id`) REFERENCES `time_points` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,7 +146,7 @@ CREATE TABLE `sensor_data` (
   KEY `sensor_data_time_point_id_foreign` (`time_point_id`),
   CONSTRAINT `sensor_data_node_id_foreign` FOREIGN KEY (`node_id`) REFERENCES `nodes` (`id`),
   CONSTRAINT `sensor_data_time_point_id_foreign` FOREIGN KEY (`time_point_id`) REFERENCES `time_points` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -173,7 +178,7 @@ CREATE TABLE `time_points` (
   KEY `time_points_sensor_data_id_foreign` (`sensor_data_id`),
   CONSTRAINT `time_points_node_id_foreign` FOREIGN KEY (`node_id`) REFERENCES `nodes` (`id`),
   CONSTRAINT `time_points_sensor_data_id_foreign` FOREIGN KEY (`sensor_data_id`) REFERENCES `sensor_data` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

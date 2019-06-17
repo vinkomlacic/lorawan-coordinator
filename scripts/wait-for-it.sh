@@ -1,20 +1,23 @@
 #!/bin/sh
 # wait-for-it.sh
-# syntax example: wait-for-it.sh localhost sakila johnsmith johnspassword npm start
 
 set -e
 
 host="$1"
-database="$2"
-username="$3"
-password="$4"
-shift
-cmd="$@"
+mysqlCfgFile="$2"
+mysqlCreateScript="$3"
+cmd="$4"
 
-until MYSQL_PASSWORD=$MYSQL_PASSWORD mysql -h "$host" -D "$database" -u "$username" -p "$password"; do
+echo "Host: $host"
+echo "Mysql config file: $mysqlCfgFile"
+echo "Mysql create script: $mysqlCreateScript"
+echo "Command to be executed: $cmd"
+
+until MYSQL_PASSWORD=$MYSQL_PASSWORD mysql --defaults-extra-file=$cfgFile --host=$host < $mysqlCreateScript; do
   >&2 echo "Mysql is unavailable - sleeping"
   sleep 1
 done
+echo "Running mysql create script."
 
 >&2 echo "Mysql is up - executing command"
 exec $cmd
