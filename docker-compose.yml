@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   lorawan_coordinator:
-    build: .
+    image: vinkomlacic/lorawan-coordinator:alpha
     stdin_open: true
     tty: true
     depends_on:
