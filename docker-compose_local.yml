@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  lorawan_coordinator:
+    build: .
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=vmlacic
+      - DB_PASSWORD=password
+      - DB_DATABASE=lorawan_coordinator_dev
+    command: [
+      "./scripts/wait-for-it.sh", 
+      "mysql",
+      "./scripts/mysql.cnf",
+      "./scripts/setup.sql",
+      "npm start"
+    ]
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=lorawan_coordinator_dev
+      - MYSQL_USER=vmlacic
+      - MYSQL_PASSWORD=password        
+    expose:
+      - "3306"
+    ports:
+      - "6033:3306"
