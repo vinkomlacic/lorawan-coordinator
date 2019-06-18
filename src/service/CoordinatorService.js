@@ -7,6 +7,7 @@ const {checkIfNodeExists} = require('./NodeService');
 const {createAndSaveNextAvailableTimePoint} = require('./TimePointService');
 const AppConfigService = require('./AppConfigService');
 const Payload = require('./Payload');
+const {SensorData} = require('../model');
 
 /**
  * Handles node activation:
@@ -75,6 +76,7 @@ const coordinate = async (data, devId, ttnClient, logger = console) => {
       time_point_id: projectedWakeupTime.get('id'),
       next_time_point_id: nextWakeupTimePoint.get('id'),
     });
+    await saveBatteryVoltage(data.payload_raw, node);
   } catch (e) {
     logger.error('Database exception.');
     logger.error(e);
@@ -125,8 +127,23 @@ const calculateDelta = (
   return delta;
 };
 
+const saveBatteryVoltage = async (batteryVoltageValue, node) => {
+  let timePointId;
+  if (node.related('time_point') != null) {
+    timePointId = node.related('time_point').get('id');
+  }
+
+  return new SensorData({
+    node_id: node.get('id'),
+    time_point_id: timePointId,
+    sensor_data_type: 'BATTERY_VOLTAGE',
+    value: batteryVoltageValue,
+  }).save();
+};
+
 
 module.exports = {
   coordinate,
   activate,
+  saveBatteryVoltage,
 };
