@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
       .createTable('nodes', (table) => {
         table.increments('id');
         table.string('dev_id');
-        table.enu('node_status', ['ACTIVE']);
+        table.enu('node_status', ['ACTIVE', 'PASSIVE']);
         table.timestamp('created_at').defaultTo(knex.fn.now());
         table.timestamp('updated_at').defaultTo(knex.fn.now());
       })
