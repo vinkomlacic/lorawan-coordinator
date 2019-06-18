@@ -15,6 +15,7 @@
     "rules": {
         "no-invalid-this": "off",
         "max-len": "warn",
-        "require-jsdoc": "warn"
+        "require-jsdoc": "warn",
+        "linebreak-style": "off"
     }
 }
