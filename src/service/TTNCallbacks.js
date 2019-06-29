@@ -10,7 +10,7 @@ const onUplink = (loggerObject, ttnClient) => async (devId, payload) => {
   loggerObject.log('Received uplink. Dev ID: ' + devId);
   loggerObject.log(payload);
 
-  if (payload && process.env.DEBUG == 1) {
+  if (payload && process.env.DEBUG === '1') {
     loggerObject.log('AppID: ' + payload.app_id);
     loggerObject.log('Hardware serial: ' + payload.hardware_serial);
     loggerObject.log('Port: ' + payload.port);
@@ -28,7 +28,7 @@ const onActivation = (loggerObject, ttnClient) => async (devId, payload) => {
   loggerObject.log('Received activation. Dev ID: ' + devId);
   loggerObject.log(payload);
 
-  if (payload && process.env.DEBUG == 1) {
+  if (payload && process.env.DEBUG === '1') {
     loggerObject.log('AppID: ' + payload.app_id);
     loggerObject.log('Gateway time: ' + payload.metadata.time);
   }

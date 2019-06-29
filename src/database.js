@@ -7,7 +7,7 @@ const knex = require('knex')({
     database: process.env.DB_DATABASE,
     charset: 'utf8',
   },
-  debug: process.env.DEBUG,
+  debug: (process.env.DEBUG === '1'),
 });
 
 const bookshelf = require('bookshelf')(knex);

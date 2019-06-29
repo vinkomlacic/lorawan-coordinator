@@ -96,7 +96,7 @@ const coordinate = async (data, devId, ttnClient, logger = console) => {
   }
 
   // Debug printout
-  if (process.env.DEBUG) {
+  if (process.env.DEBUG === '1') {
     logger.log('Gateway time: ' + gatewayTime.getTime());
     logger.log('Sleep period: ' + sleepPeriod);
     logger.log('Maximum allowed error: ' + maxAllowedError);
