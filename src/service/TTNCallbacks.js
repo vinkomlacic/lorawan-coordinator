@@ -2,7 +2,7 @@
 /**
  * Callback methods which control the workflow of TTN client.
  */
-const {coordinate, activate} = require('./CoordinatorService');
+const {coordinate, activate} = require('./CoordinatorService')();
 
 const onUplink = (loggerObject, ttnClient) => async (devId, payload) => {
   if (!loggerObject) throw new Error('Invalid logger object.');

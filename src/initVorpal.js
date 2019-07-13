@@ -1,12 +1,10 @@
 /**
  * Initializes vorpal instance.
  */
-const {
-  TTNCallbacks,
-  CoordinatorService,
-} = require('./service');
+const {TTNCallbacks} = require('./service');
 const AppConfigService = require('./service/AppConfigService')();
 const NodeService = require('./service/NodeService')();
+const CoordinatorService = require('./service/CoordinatorService')();
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 
