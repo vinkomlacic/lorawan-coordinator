@@ -3,9 +3,9 @@
  * Module which contains functions used for coordinating nodes' sleep and
  * wakeup times.
  */
-const {checkIfNodeExists} = require('./NodeService');
-const {createAndSaveNextAvailableTimePoint} = require('./TimePointService');
+const TimePointService = require('./TimePointService');
 const AppConfigService = require('./AppConfigService');
+const NodeService = require('./NodeService');
 const Payload = require('./Payload');
 const {SensorData} = require('../model');
 
@@ -22,9 +22,9 @@ const {SensorData} = require('../model');
 const activate = async (data, devId, ttnClient, logger = console) => {
   logger.log('Activating ' + devId + ' ...');
 
-  const node = await checkIfNodeExists(devId, logger);
+  const node = await NodeService.checkIfNodeExists(devId, logger);
   const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
-  const nextTimePoint = await createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
+  const nextTimePoint = await TimePointService.createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
 
   node.set({time_point: node.get('next_time_point')});
   node.set({next_time_point: nextTimePoint});
