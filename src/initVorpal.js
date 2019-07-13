@@ -4,9 +4,9 @@
 const {
   TTNCallbacks,
   CoordinatorService,
-  NodeService,
 } = require('./service');
 const AppConfigService = require('./service/AppConfigService')();
+const NodeService = require('./service/NodeService')();
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 

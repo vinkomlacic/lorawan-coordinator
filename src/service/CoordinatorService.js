@@ -6,7 +6,7 @@
 const {SensorData} = require('../model');
 const TimePointService = require('./TimePointService')();
 const AppConfigService = require('./AppConfigService')();
-const NodeService = require('./NodeService');
+const NodeService = require('./NodeService')();
 const Payload = require('./Payload');
 
 /**
