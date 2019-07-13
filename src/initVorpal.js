@@ -3,10 +3,10 @@
  */
 const {
   TTNCallbacks,
-  AppConfigService,
   CoordinatorService,
   NodeService,
 } = require('./service');
+const AppConfigService = require('./service/AppConfigService')();
 const {data} = require('ttn');
 const vorpal = require('vorpal')();
 

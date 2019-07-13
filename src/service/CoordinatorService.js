@@ -3,11 +3,11 @@
  * Module which contains functions used for coordinating nodes' sleep and
  * wakeup times.
  */
+const {SensorData} = require('../model');
 const TimePointService = require('./TimePointService');
-const AppConfigService = require('./AppConfigService');
+const AppConfigService = require('./AppConfigService')();
 const NodeService = require('./NodeService');
 const Payload = require('./Payload');
-const {SensorData} = require('../model');
 
 /**
  * Handles node activation:
