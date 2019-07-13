@@ -5,7 +5,7 @@
  * @return {Object} exposed methods
  */
 const TimePointService = (TimePoint = require('../model/TimePoint')) => {
-  const createNewTimePoint = async (timeValue, nodeId = null) => {
+  const createNewTimePoint = (timeValue, nodeId = null) => {
     return TimePoint.forge({
       node_id: nodeId,
       time: timeValue,
@@ -29,10 +29,10 @@ const TimePointService = (TimePoint = require('../model/TimePoint')) => {
     const lastTimePointTimeMillis = new Date(lastTimePoint.get('time')).getTime();
     let newTimePointTimeMillis = lastTimePointTimeMillis + sleepPeriodSeconds * 1000;
     while (newTimePointTimeMillis < Date.now()) {
-      newTimePointTimeMillis = lastTimePointTimeMillis + sleepPeriodSeconds * 1000;
+      newTimePointTimeMillis += sleepPeriodSeconds * 1000;
     }
 
-    const newTimePoint = createNewTimePoint(new Date(newTimePointTimeMillis, nodeId));
+    const newTimePoint = createNewTimePoint(new Date(newTimePointTimeMillis), nodeId);
     await newTimePoint.save();
 
     return newTimePoint;

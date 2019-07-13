@@ -9,6 +9,7 @@ const CoordinatorService = (
     TimePointService = require('./TimePointService')(),
     AppConfigService = require('./AppConfigService')(),
     NodeService = require('./NodeService')(),
+    logger = console,
     Payload = require('./Payload')
 ) => {
   /**
@@ -19,18 +20,17 @@ const CoordinatorService = (
    * @param {Object} data data packed from TTN
    * @param {String} devId developer id for the node
    * @param {Object} ttnClient object required for TTN communication
-   * @param {Object} [logger=console] object required for logging
    */
-  const activate = async (data, devId, ttnClient, logger = console) => {
+  const activate = async (data, devId, ttnClient) => {
     logger.log('Activating ' + devId + ' ...');
 
-    const node = await NodeService.checkIfNodeExists(devId, logger);
+    const node = await NodeService.checkIfNodeExists(devId);
     const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
     const nextTimePoint = await TimePointService
         .createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
 
-    node.set({time_point: node.get('next_time_point')});
-    node.set({next_time_point: nextTimePoint});
+    node.set({time_point_id: node.get('next_time_point_id')});
+    node.set({next_time_point_id: nextTimePoint.get('id')});
 
     await node.save();
 
@@ -46,10 +46,9 @@ const CoordinatorService = (
    * @param {Object} data Data received from sensor node.
    * @param {string} devId Device id.
    * @param {Object} ttnClient TTN client
-   * @param {Object} logger Logger object.
    * @async
    */
-  const coordinate = async (data, devId, ttnClient, logger = console) => {
+  const coordinate = async (data, devId, ttnClient) => {
     let node = await NodeService.checkIfNodeExists(devId);
 
     const gatewayTime = new Date(data.metadata.gateways[0].time);
@@ -92,10 +91,10 @@ const CoordinatorService = (
           gatewayTime.getTime(),
           maxAllowedError
       );
-      sendOffset(ttnClient, -delta, logger);
+      sendOffset(ttnClient, -delta);
     } catch (e) {
       logger.error(e);
-      activate(data, devId, ttnClient, logger);
+      await activate(data, devId, ttnClient);
     }
 
     // Debug printout
@@ -108,7 +107,7 @@ const CoordinatorService = (
     }
   };
 
-  const sendOffset = (ttnClient, offsetSeconds, logger = console) => {
+  const sendOffset = (ttnClient, offsetSeconds) => {
     const payload = new Payload(Payload.getDataTypes().OFFSET);
     payload.setDataValue(offsetSeconds.toString(16));
 

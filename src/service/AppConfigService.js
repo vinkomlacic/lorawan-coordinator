@@ -2,9 +2,13 @@
 /**
  * Service used for getting and setting app configuration parameters.
  * @param {Object} AppConfig database model
+ * @param {Object} logger logger object
  * @return {Object} of exposed methods
  */
-const AppConfigService = (AppConfig = require('../model/AppConfig')) => {
+const AppConfigService = (
+    AppConfig = require('../model/AppConfig'),
+    logger = console,
+) => {
   class ConfigurationParameter {
     constructor(code, defaultValue) {
       this.code = code;
@@ -21,10 +25,9 @@ const AppConfigService = (AppConfig = require('../model/AppConfig')) => {
   /**
    * Initializes app_config table. Use this on app startup.
    * Function will not overwrite existing configuration if there is one.
-   * @param {Object} logger Logger object.
    * @async
    */
-  const initializeAppConfiguration = async (logger) => {
+  const initializeAppConfiguration = async () => {
     const maximumAllowedError = new AppConfig({
       key: configurationParameters.maximumAllowedError.code,
     });
@@ -98,7 +101,7 @@ const AppConfigService = (AppConfig = require('../model/AppConfig')) => {
     await sleepPeriod.save();
   };
 
-  const printConfigurationParameters = (logger) => {
+  const printConfigurationParameters = () => {
     logger.log('Configuration parameters: \n');
     Object.keys(configurationParameters).forEach((key) => {
       logger.log('\t- ' + configurationParameters[key].displayName);

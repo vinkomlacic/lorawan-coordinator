@@ -3,7 +3,10 @@
  * Lists all nodes.
  */
 
-const NodeService = (Node = require('../model/Node')) => {
+const NodeService = (
+    Node = require('../model/Node'),
+    logger = console,
+) => {
   /**
    * Fetches all nodes.
    * @param {boolean} [active=false] returns only active nodes if true
@@ -28,10 +31,9 @@ const NodeService = (Node = require('../model/Node')) => {
    * Prints node info for all nodes.
    * @param {boolean} [active=false] prints only active nodes if true
    * @param {boolean} [passive=false] prints only passive nodes if true
-   * @param {Object} [logger=console] logger object
    * @async
    */
-  const listNodes = async ({active = false, passive = false, logger = console}) => {
+  const listNodes = async ({active = false, passive = false}) => {
     return fetchNodes(active, passive).then((nodes) => nodes.forEach((node) => {
       logger.log('Id: ' + node.get('id'));
       logger.log('Dev id: ' + node.get('dev_id'));
@@ -53,11 +55,10 @@ const NodeService = (Node = require('../model/Node')) => {
   /**
    * Checks if node with specified dev ID exists and returns it.
    * @param {String} devId
-   * @param {Object} [logger=console] object required for logging
    * @throws Error if node cannot be fetched for some other reason than it not existing
    * @async
    */
-  const checkIfNodeExists = async (devId, logger = console) => {
+  const checkIfNodeExists = async (devId) => {
     let node;
 
     try {
