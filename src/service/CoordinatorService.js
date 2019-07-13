@@ -4,7 +4,7 @@
  * wakeup times.
  */
 const {SensorData} = require('../model');
-const TimePointService = require('./TimePointService');
+const TimePointService = require('./TimePointService')();
 const AppConfigService = require('./AppConfigService')();
 const NodeService = require('./NodeService');
 const Payload = require('./Payload');
@@ -24,7 +24,8 @@ const activate = async (data, devId, ttnClient, logger = console) => {
 
   const node = await NodeService.checkIfNodeExists(devId, logger);
   const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
-  const nextTimePoint = await TimePointService.createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
+  const nextTimePoint = await TimePointService
+      .createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
 
   node.set({time_point: node.get('next_time_point')});
   node.set({next_time_point: nextTimePoint});
@@ -47,7 +48,7 @@ const activate = async (data, devId, ttnClient, logger = console) => {
   * @async
   */
 const coordinate = async (data, devId, ttnClient, logger = console) => {
-  const node = await NodeService.checkIfNodeExists(devId);
+  let node = await NodeService.checkIfNodeExists(devId);
 
   const gatewayTime = new Date(data.metadata.gateways[0].time);
   const projectedWakeupTimePoint = node.related('nextTimePoint');
