@@ -57,32 +57,24 @@ module.exports = function() {
             });
 
         vorpal
-            .command('config set maximum_allowed_error', 'Sets maximum allowed error', {})
+            .command('config set', '', {})
+            .description('Sets specified app config param value. ' +
+              'Note: use quotes on parameter names with more than one word.')
+            .option('-d --displayName <name>', 'Display name of the parameter')
+            .option('-v --value <val>', 'Value to be set on the parameter')
             .action(async function(args, callback) {
-              await AppConfigService.setMaximumAllowedErrorValue(args[0]);
+              await AppConfigService.setAppConfigParamValueByDisplayName(args.options);
               callback();
             });
 
         vorpal
-            .command('config set sleep_period', 'Sets the sleep period.', {})
+            .command('config get', '', {})
+            .description('Prints specified app config param value.' +
+              'Note: use quotes on parameter names with more than one word.')
+            .option('-d --displayName <name>', 'Display name of the parameter')
             .action(async function(args, callback) {
-              await AppConfigService.setSleepPeriodValue(args[0]);
-              callback();
-            });
-
-        vorpal
-            .command('config get maximum_allowed_error', 'Prints maximum allowed error.', {})
-            .action(async function(args, callback) {
-              const mae = await AppConfigService.getMaximumAllowedErrorValue();
+              const mae = await AppConfigService.getAppConfigParamValueByDisplayName(args.options);
               this.log(mae);
-              callback();
-            });
-
-        vorpal
-            .command('config get sleep_period', 'Prints sleep period.', {})
-            .action(async function(args, callback) {
-              const sleepPeriod = await AppConfigService.getSleepPeriodValue();
-              this.log(sleepPeriod);
               callback();
             });
 
@@ -94,16 +86,9 @@ module.exports = function() {
             });
 
         vorpal
-            .command('env', 'Lists all environment variables.',{})
+            .command('env', 'Lists all environment variables.', {})
             .action(function(args, callback) {
               this.log(process.env);
-              callback();
-            });
-
-        vorpal
-            .command('test', 'Placeholder for testing functions.', {})
-            .action(function(args, callback) {
-              CoordinatorService.activate(null, null, dataClient);
               callback();
             });
 

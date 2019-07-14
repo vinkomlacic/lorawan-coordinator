@@ -4,14 +4,15 @@
  * wakeup times.
  */
 
-const CoordinatorService = (
-    SensorData = require('../model/SensorData'),
-    TimePointService = require('./TimePointService')(),
-    AppConfigService = require('./AppConfigService')(),
-    NodeService = require('./NodeService')(),
-    logger = console,
-    Payload = require('./Payload')
-) => {
+const CoordinatorService = ({
+  SensorData = require('../model/SensorData'),
+  TimePointService = require('./TimePointService')(),
+  AppConfigService = require('./AppConfigService')({}),
+  NodeService = require('./NodeService')(),
+  logger = console,
+  configuration = require('../app_config/Configuration'),
+  Payload = require('./Payload'),
+}) => {
   /**
    * Handles node activation:
    *    - creates a new node with this dev id
@@ -25,7 +26,8 @@ const CoordinatorService = (
     logger.log('Activating ' + devId + ' ...');
 
     const node = await NodeService.checkIfNodeExists(devId);
-    const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
+    const sleepPeriodSeconds = await AppConfigService
+        .getAppConfigParamValueByConfigurationParam(configuration.SLEEP_PERIOD);
     const nextTimePoint = await TimePointService
         .createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
 
@@ -60,8 +62,12 @@ const CoordinatorService = (
 
     const projectedWakeupTime = new Date(projectedWakeupTimePoint.get('time'));
 
-    const maxAllowedError = await AppConfigService.getMaximumAllowedErrorValue();
-    const sleepPeriodSeconds = await AppConfigService.getSleepPeriodValue();
+    const maxAllowedError = await AppConfigService.getAppConfigParamValueByConfigurationParam(
+        configuration.MAXIMUM_ALLOWED_ERROR
+    );
+    const sleepPeriodSeconds = await AppConfigService.getAppConfigParamValueByConfigurationParam(
+        configuration.SLEEP_PERIOD
+    );
 
     let nextWakeupTimePoint = await TimePointService.createNewTimePoint(
         new Date(projectedWakeupTime.getTime() + sleepPeriodSeconds * 1000),

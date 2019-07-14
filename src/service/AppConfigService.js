@@ -1,120 +1,159 @@
 'use strict';
 /**
  * Service used for getting and setting app configuration parameters.
- * @param {Object} AppConfig database model
+ * @param {AppConfig} AppConfig database model
+ * @param {Object} configuration parameters
  * @param {Object} logger logger object
  * @return {Object} of exposed methods
  */
-const AppConfigService = (
-    AppConfig = require('../model/AppConfig'),
-    logger = console,
-) => {
-  class ConfigurationParameter {
-    constructor(code, defaultValue) {
-      this.code = code;
-      this.displayName = code.toLowerCase().replace(' ', '_');
-      this.defaultValue = defaultValue;
-    }
-  }
-
-  const configurationParameters = {
-    maximumAllowedError: new ConfigurationParameter('MAXIMUM_ALLOWED_ERROR', 2),
-    sleepPeriod: new ConfigurationParameter('SLEEP_PERIOD', 30),
-  };
-
+const AppConfigService = ({
+  AppConfig = require('../model/AppConfig'),
+  configuration = require('../app_config/Configuration'),
+  logger = console,
+}) => {
   /**
    * Initializes app_config table. Use this on app startup.
    * Function will not overwrite existing configuration if there is one.
    * @async
+   * @return {Promise<any>}
    */
   const initializeAppConfiguration = async () => {
-    const maximumAllowedError = new AppConfig({
-      key: configurationParameters.maximumAllowedError.code,
-    });
-    const sleepPeriod = new AppConfig({
-      key: configurationParameters.sleepPeriod.code,
-    });
+    const appConfigObjects = mapConfigurationToAppConfig(configuration);
 
     try {
-      await maximumAllowedError.fetch({require: true});
-      await sleepPeriod.fetch({require: true});
-
+      await checkAppConfigInitialized(appConfigObjects);
       logger.log('App config already initialized. Skipping initialization.');
     } catch (e) {
-      if (e instanceof AppConfig.NotFoundError) {
-        logger.log('App config not found or incomplete.');
-        logger.log('Initializing app config with default parameters.');
+      logger.log(e);
+      logger.log('App config not found or incomplete.');
+      logger.log('Initializing app config with default parameters.');
 
-        maximumAllowedError.set({
-          key: configurationParameters.maximumAllowedError.code,
-          value: configurationParameters.maximumAllowedError.defaultValue,
-          default_value: configurationParameters.maximumAllowedError.defaultValue,
-        });
-        sleepPeriod.set({
-          key: configurationParameters.sleepPeriod.code,
-          value: configurationParameters.sleepPeriod.defaultValue,
-          default_value: configurationParameters.sleepPeriod.defaultValue,
-        });
+      initializeAppConfigParams(appConfigObjects, configuration);
+      await saveAppConfigObjects(appConfigObjects);
 
-        await maximumAllowedError.save();
-        await sleepPeriod.save();
-
-        logger.log('App config initialized.');
-      } else {
-        logger.log('App config general error.');
-        logger.log(e);
-      }
+      logger.log('App config initialized.');
     }
+
+    return mapAppConfigArrayToObjectWithCodePropertyNames(appConfigObjects);
   };
 
-  const getMaximumAllowedErrorValue = async () => {
-    const maximumAllowedError = await new AppConfig({
-      key: configurationParameters.maximumAllowedError.code,
-    }).fetch();
+  /**
+   * @param {string} displayName
+   * @async
+   * @return {Promise<*>} resolves to app config param value
+   */
+  const getAppConfigParamValueByDisplayName = async ({displayName} = {}) => {
+    const key = getConfigurationParamCodeByDisplayName(displayName);
+    const appConfig = await new AppConfig({key}).fetch();
 
-    return parseInt(maximumAllowedError.get('value'));
+    return appConfig.get('value');
   };
 
-  const setMaximumAllowedErrorValue = async (value) => {
-    const maximumAllowedError = await new AppConfig({
-      key: configurationParameters.maximumAllowedError.code,
-    }).fetch();
+  /**
+   * @param {ConfigurationParam} configurationParam
+   * @async
+   * @return {Promise<*>} resolves to app config param value
+   */
+  const getAppConfigParamValueByConfigurationParam = async (configurationParam) => {
+    if (!configurationParam) {
+      throw new Error('Invalid argument passed: ' + configurationParam);
+    }
 
-    maximumAllowedError.set({value});
-    await maximumAllowedError.save();
+    if (configuration[configurationParam.code] === undefined) {
+      throw new Error('Non existing configuration param: ' + configurationParam.code);
+    }
+
+    const appConfig = await new AppConfig({key: configurationParam.code}).fetch();
+
+    return appConfig.get('value');
   };
 
-  const getSleepPeriodValue = async () => {
-    const sleepPeriod = await new AppConfig({
-      key: configurationParameters.sleepPeriod.code,
-    }).fetch();
 
-    return parseInt(sleepPeriod.get('value'));
+  /**
+   * @param {string} displayName
+   * @param {*} value
+   * @async
+   */
+  const setAppConfigParamValueByDisplayName = async ({
+    displayName,
+    value,
+  } = {}) => {
+    const key = getConfigurationParamCodeByDisplayName(displayName);
+    await new AppConfig().save({key, value}, {method: 'update', patch: true});
   };
 
-  const setSleepPeriodValue = async (value) => {
-    const sleepPeriod = await new AppConfig({
-      key: configurationParameters.sleepPeriod.code,
-    }).fetch();
-
-    sleepPeriod.set({value});
-    await sleepPeriod.save();
-  };
-
+  /**
+   * Prints all configuration parameters' display names.
+   * Use these when setting and getting configuration params.
+   */
   const printConfigurationParameters = () => {
     logger.log('Configuration parameters: \n');
-    Object.keys(configurationParameters).forEach((key) => {
-      logger.log('\t- ' + configurationParameters[key].displayName);
+    Object.keys(configuration).forEach((key) => {
+      logger.log('\t- ' + configuration[key].displayName);
     });
     logger.log();
   };
 
+  /*
+  Methods below are not exposed to outside modules
+   */
+
+  const getConfigurationParamCodeByDisplayName = (displayName) => {
+    let key = '';
+    Object.keys(configuration).forEach((param) => {
+      if (configuration[param].displayName === displayName) {
+        key = configuration[param].code;
+      }
+    });
+
+    if (key === '' || !displayName) throw new Error('Invalid display name provided');
+
+    return key;
+  };
+
+  const mapConfigurationToAppConfig = (configurationParameters) => {
+    return Object.keys(configurationParameters).map((configurationObjectKey) => {
+      return new AppConfig({
+        key: configurationObjectKey,
+      });
+    });
+  };
+
+  const checkAppConfigInitialized = async (appConfigObjects) => {
+    for (const appConfig of appConfigObjects) {
+      await appConfig.fetch({require: true});
+    }
+  };
+
+  const initializeAppConfigParams = (appConfigObjects, params) => {
+    let param;
+    appConfigObjects.forEach((appConfig) => {
+      param = params[appConfig.get('key')];
+      appConfig.set({
+        value: param.defaultValue,
+        defaultValue: param.defaultValue
+      });
+    });
+  };
+
+  const saveAppConfigObjects = async (appConfigObjects) => {
+    const promises = appConfigObjects.map((appConfig) => appConfig.save());
+    await Promise.all(promises);
+  };
+
+  const mapAppConfigArrayToObjectWithCodePropertyNames = (appConfigObjects) => {
+    const result = {};
+    appConfigObjects.forEach((appConfig) => {
+      result[appConfig.get('key')] = appConfig;
+    });
+    return result;
+  };
+
   return {
     initializeAppConfiguration,
-    getMaximumAllowedErrorValue,
-    setMaximumAllowedErrorValue,
-    getSleepPeriodValue,
-    setSleepPeriodValue,
+    getAppConfigParamValueByDisplayName,
+    getAppConfigParamValueByConfigurationParam,
+    setAppConfigParamValueByDisplayName,
     printConfigurationParameters,
   };
 };
