@@ -57,23 +57,25 @@ module.exports = function() {
             });
 
         vorpal
-            .command('config set', '', {})
+            .command('config set <name> <value>', '', {})
             .description('Sets specified app config param value. ' +
               'Note: use quotes on parameter names with more than one word.')
-            .option('-d --displayName <name>', 'Display name of the parameter')
-            .option('-v --value <val>', 'Value to be set on the parameter')
             .action(async function(args, callback) {
-              await AppConfigService.setAppConfigParamValueByDisplayName(args.options);
+              await AppConfigService.setAppConfigParamValueByDisplayName({
+                displayName: args.name,
+                value: args.value,
+              });
               callback();
             });
 
         vorpal
-            .command('config get', '', {})
+            .command('config get <name>', '', {})
             .description('Prints specified app config param value.' +
               'Note: use quotes on parameter names with more than one word.')
-            .option('-d --displayName <name>', 'Display name of the parameter')
             .action(async function(args, callback) {
-              const mae = await AppConfigService.getAppConfigParamValueByDisplayName(args.options);
+              const mae = await AppConfigService.getAppConfigParamValueByDisplayName({
+                displayName: args.name,
+              });
               this.log(mae);
               callback();
             });
