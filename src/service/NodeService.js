@@ -45,13 +45,6 @@ const NodeService = (
     }));
   };
 
-  const getTimePointISOString = (timePoint) => {
-    if (timePoint && timePoint.get('time')) {
-      return timePoint.get('time').toISOString();
-    }
-    return 'Time unavailable.';
-  };
-
   /**
    * Checks if node with specified dev ID exists and returns it.
    * @param {String} devId
@@ -77,6 +70,17 @@ const NodeService = (
     }
 
     return node;
+  };
+
+  /*
+  Not exposed methods.
+   */
+
+  const getTimePointISOString = (timePoint) => {
+    if (timePoint && timePoint.get('time')) {
+      return timePoint.get('time').toISOString();
+    }
+    return 'Time unavailable.';
   };
 
   return {
