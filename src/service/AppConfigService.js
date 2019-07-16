@@ -79,7 +79,8 @@ const AppConfigService = ({
     value,
   } = {}) => {
     const key = getConfigurationParamCodeByDisplayName(displayName);
-    await new AppConfig().save({key, value}, {method: 'update', patch: true});
+    const entity = new AppConfig({key, value});
+    return entity.save(null, {method: 'update'});
   };
 
   /**

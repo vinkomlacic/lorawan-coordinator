@@ -42,9 +42,9 @@ describe('AppConfigService unit tests', () => {
 
 
   describe('set app configuration param value by display name', () => {
-    it('should be fulfilled given correct display name', () => {
+    it('should be fulfilled given correct display name', async () => {
       const validDisplayName = testConfiguration.TEST_CONFIGURATION_1.displayName;
-      expect(AppConfigService.setAppConfigParamValueByDisplayName({
+      await expect(AppConfigService.setAppConfigParamValueByDisplayName({
         displayName: validDisplayName,
         value: '',
       })).to.be.fulfilled;

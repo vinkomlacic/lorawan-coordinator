@@ -39,10 +39,12 @@ class ModelBaseMock {
   }
 
   /**
-   * Does nothing
+   * Does nothing.
+   * @param {Object} attributes
+   * @param {Object} options
    * @return {Promise<void>}
    */
-  async save() {}
+  async save(attributes = {}, options = {}) {}
 }
 
 module.exports = ModelBaseMock;
