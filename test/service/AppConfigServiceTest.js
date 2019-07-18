@@ -31,7 +31,7 @@ describe('AppConfigService unit tests', () => {
 
       for (const configurationParam of Object.keys(initializedConfiguration)) {
         expect(initializedConfiguration[configurationParam].get('key'))
-            .to.be.equal(testConfiguration[configurationParam].code);
+            .to.be.equal(testConfiguration[configurationParam].header);
         expect(initializedConfiguration[configurationParam].get('value'))
             .to.be.equal(testConfiguration[configurationParam].defaultValue);
         expect(initializedConfiguration[configurationParam].get('defaultValue'))

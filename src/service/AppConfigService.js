@@ -106,6 +106,11 @@ const AppConfigService = ({
         key = configuration[param].code;
       }
     });
+    // for (const param in configuration) {
+    //   if (Object.prototype.hasOwnProperty.call(param, configuration)) {
+    //     key = configuration[param].displayName;
+    //   }
+    // }
 
     if (key === '' || !displayName) throw new Error('Invalid display name provided');
 
