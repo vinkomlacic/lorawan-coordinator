@@ -27,8 +27,8 @@ module.exports = function() {
               data(process.env.TTN_APP_ID, process.env.TTN_ACCESS_KEY)
                   .then((client) => {
                     dataClient = client;
-                    client.on('uplink', TTNCallbacks.onUplink(client));
-                    client.on('activation', TTNCallbacks.onActivation(client));
+                    client.on('uplink', TTNCallbacks.onUplink(client, args.options.coordinate));
+                    client.on('activation', TTNCallbacks.onActivation(client, args.options.coordinate));
                     self.log('Data client connected.');
                   })
                   .catch((err) => {

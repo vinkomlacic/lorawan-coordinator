@@ -11,7 +11,7 @@ const TTNCallbacks = (
     CoordinatorService = require('./CoordinatorService')(),
     logger = console,
 ) => {
-  const onUplink = (ttnClient) => async (devId, payload) => {
+  const onUplink = (ttnClient, coordinate) => async (devId, payload) => {
     logger.log('Received uplink. Dev ID: ' + devId);
     logger.log(payload);
 
@@ -24,10 +24,10 @@ const TTNCallbacks = (
       logger.log('Gateway time: ' + payload.metadata.time);
     }
 
-    await CoordinatorService.coordinate(payload, devId, ttnClient);
+    await CoordinatorService.coordinate(coordinate)(payload, devId, ttnClient);
   };
 
-  const onActivation = (ttnClient) => async (devId, payload) => {
+  const onActivation = (ttnClient, coordinate) => async (devId, payload) => {
     logger.log('Received activation. Dev ID: ' + devId);
     logger.log(payload);
 
@@ -36,7 +36,7 @@ const TTNCallbacks = (
       logger.log('Gateway time: ' + payload.metadata.time);
     }
 
-    await CoordinatorService.activate(data, devId, ttnClient);
+    await CoordinatorService.activate(coordinate)(payload, devId, ttnClient);
   };
 
   return {

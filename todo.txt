@@ -1,0 +1,3 @@
+TODO :
+	- treba dodat konfiguraciju za cvor u bazu
+	- pronac problem s krivim racunanjem vremena na senzoru -- RJESENO

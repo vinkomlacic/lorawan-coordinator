@@ -19,39 +19,44 @@ const CoordinatorService = ({
    *    - creates a new node with this dev id
    *    - allocates a new time point for it to send next time
    *    - schedules downlink to send offset
+   * @param {boolean} coordinate
    * @param {Object} data data packed from TTN
    * @param {String} devId developer id for the node
    * @param {Object} ttnClient object required for TTN communication
+   * @return {function} async function
    */
-  const activate = async (data, devId, ttnClient) => {
+  const activate = (coordinate) => async (data, devId, ttnClient) => {
     logger.log('Activating ' + devId + ' ...');
 
     const node = await NodeService.checkIfNodeExists(devId);
-    const sleepPeriodSeconds = await AppConfigService
-        .getAppConfigParamValueByConfigurationParam(configuration.SLEEP_PERIOD);
     const nextTimePoint = await TimePointService
-        .createAndSaveNextAvailableTimePoint(sleepPeriodSeconds, node.get('id'));
+        .createAndSaveNextAvailableTimePoint(30, node.get('id'));
 
     node.set({time_point_id: node.get('next_time_point_id')});
     node.set({next_time_point_id: nextTimePoint.get('id')});
 
     await node.save();
 
-    const gatewayTime = new Date(data.metadata.gateways[0].time).getTime();
-    const nextTimePointTime = new Date(nextTimePoint.get('time')).getTime();
-    const offsetSeconds = Math.floor((nextTimePointTime - gatewayTime) / 1000);
+    if (coordinate) {
+      const gatewayTime = new Date(data.metadata.gateways[0].time).getTime();
+      const nextTimePointTime = new Date(nextTimePoint.get('time')).getTime();
+      const offsetSeconds = Math.floor((nextTimePointTime - gatewayTime) / 1000);
 
-    sendOffset(ttnClient, offsetSeconds, logger);
+      sendOffset(ttnClient, offsetSeconds, logger);
+    }
+
     logger.log('Device: ' + devId + ' activated.');
   };
 
   /**
+   * @param {boolean} coordinate
    * @param {Object} data Data received from sensor node.
    * @param {string} devId Device id.
    * @param {Object} ttnClient TTN client
+   * @return {function} function
    * @async
    */
-  const coordinate = async (data, devId, ttnClient) => {
+  const coordinate = (coordinate) => async (data, devId, ttnClient) => {
     let node = await NodeService.checkIfNodeExists(devId);
 
     const gatewayTime = new Date(data.metadata.gateways[0].time);
@@ -66,12 +71,9 @@ const CoordinatorService = ({
     const maxAllowedError = await AppConfigService.getAppConfigParamValueByConfigurationParam(
         configuration.MAXIMUM_ALLOWED_ERROR
     );
-    const sleepPeriodSeconds = await AppConfigService.getAppConfigParamValueByConfigurationParam(
-        configuration.SLEEP_PERIOD
-    );
 
     let nextWakeupTimePoint = await TimePointService.createNewTimePoint(
-        new Date(projectedWakeupTime.getTime() + sleepPeriodSeconds * 1000),
+        new Date(projectedWakeupTime.getTime() + 30 * 1000),
         node.get('id')
     );
 
@@ -82,34 +84,34 @@ const CoordinatorService = ({
         node_id: node.get('id'),
       });
       node = await node.save({
-        time_point_id: projectedWakeupTime.get('id'),
+        time_point_id: projectedWakeupTimePoint.get('id'),
         next_time_point_id: nextWakeupTimePoint.get('id'),
       });
       await saveBatteryVoltage(data.payload_raw, node);
     } catch (e) {
-      logger.error('Database exception.');
-      logger.error(e);
+      logger.log('Database exception.');
+      logger.log(e);
     }
 
-    let delta;
-    try {
-      delta = calculateDelta(
-          projectedWakeupTime.getTime(),
-          gatewayTime.getTime(),
-          maxAllowedError
-      );
-      sendOffset(ttnClient, -delta);
-    } catch (e) {
-      logger.error(e);
-      await activate(data, devId, ttnClient);
+    if (coordinate) {
+      let delta;
+      try {
+        delta = calculateDelta(
+            projectedWakeupTime.getTime(),
+            gatewayTime.getTime(),
+            maxAllowedError
+        );
+        sendOffset(ttnClient, -delta);
+      } catch (e) {
+        logger.log(e);
+      }
     }
 
     // Debug printout
     if (process.env.DEBUG === '1') {
       logger.log('Gateway time: ' + gatewayTime.getTime());
-      logger.log('Sleep period: ' + sleepPeriod);
+      logger.log('Sleep period: ' + 30);
       logger.log('Maximum allowed error: ' + maxAllowedError);
-      logger.log('Last wakeup time: ' + lastWakeupTimePoint.get('time'));
       logger.log('Next wakeup time: ' + nextWakeupTimePoint.get('time'));
     }
   };
@@ -147,7 +149,7 @@ const CoordinatorService = ({
       node_id: node.get('id'),
       time_point_id: timePointId,
       sensor_data_type: 'BATTERY_VOLTAGE',
-      value: batteryVoltageValue,
+      value: batteryVoltageValue.toString('hex'),
     }).save();
   };
 
