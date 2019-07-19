@@ -74,7 +74,7 @@ module.exports = function() {
               this.log('Append parameter name and value and it will be added to an object for sending');
               callback();
             })
-            .delimiter('param append:')
+            .delimiter('append: ')
             .action(function(args, callback) {
               const param = args.split(' ');
               let nodeConfigParam;
@@ -89,9 +89,9 @@ module.exports = function() {
               const buffer = Buffer.alloc(1 + nodeConfigParam.byteSize);
               buffer.writeUInt8(nodeConfigParam.header, 0);
               if (nodeConfigParam.signed === true) {
-                buffer.writeIntBE(Number.parseInt(param[1]), 1, nodeConfigParam.byteSize);
+                buffer.writeIntLE(Number.parseInt(param[1]), 1, nodeConfigParam.byteSize);
               } else {
-                buffer.writeUIntBE(Number.parseInt(param[1]), 1, nodeConfigParam.byteSize);
+                buffer.writeUIntLE(Number.parseInt(param[1]), 1, nodeConfigParam.byteSize);
               }
 
               if (params === null) {

@@ -1,4 +1,5 @@
 'use strict';
+const NodeConfigParam = require('../node_config/NodeConfigParam');
 /**
  * Module which contains functions used for coordinating nodes' sleep and
  * wakeup times.
@@ -114,10 +115,11 @@ const CoordinatorService = ({
   };
 
   const sendOffset = (ttnClient, offsetSeconds) => {
-    const payload = new Payload(Payload.getDataTypes().OFFSET);
-    payload.setDataValue(offsetSeconds.toString(16));
+    const payload = Buffer.alloc(NodeConfigParam.OFFSET.byteSize + 1);
+    payload.writeUInt8(NodeConfigParam.OFFSET.header, 0);
+    payload.writeUInt16LE(offsetSeconds, 1);
 
-    ttnClient.send(payload.hexString());
+    ttnClient.send(payload.toString('hex'));
     logger.log('Sent offset to device. Offset value: ' + offsetSeconds);
   };
 
