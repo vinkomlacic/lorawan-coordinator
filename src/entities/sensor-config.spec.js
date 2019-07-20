@@ -1,7 +1,7 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
 // TODO: replace with a real one after implementing
-const ConfigurationAdapter = require('../../test/fixtures/configuration/ConfigurationAdapter');
+const ConfigurationAdapter = require('../../test/fixtures/configuration/configuration-adapter');
 const makeSensorConfig = require('./sensor-config')({ConfigurationAdapter});
 const makeFakeSensorConfig =
     require('../../test/fixtures/entities/sensor-config')({ConfigurationAdapter});

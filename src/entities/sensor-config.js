@@ -20,6 +20,10 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
       getByteSize: () => byteSize,
       getFormat: () => format,
       getValue: () => value,
+      setValue: (valueValue) => {
+        validateValue(valueValue);
+        value = valueValue;
+      },
       getCreatedAt: () => createdAt,
       getUpdatedAt: () => createdAt,
     });
