@@ -11,7 +11,7 @@ const {describe, it} = require('mocha');
 const {expect} = require('chai');
 
 describe('sensor', () => {
-  it('must not allow setting invalid last gateway time', () => {
+  it('should not allow setting invalid last gateway time', () => {
     let sensor = makeFakeSensor({lastGatewayTime: 'invalid'});
     expect(() => makeSensor(sensor)).throws(ValidationError);
 
@@ -22,7 +22,7 @@ describe('sensor', () => {
     expect(() => makeSensor(sensor)).throws(ValidationError);
   });
 
-  it('must not allow setting invalid next gateway time', () => {
+  it('should not allow setting invalid next gateway time', () => {
     let sensor = makeFakeSensor({nextGatewayTime: 'invalid'});
     expect(() => makeSensor(sensor)).throws(ValidationError);
 
@@ -33,7 +33,7 @@ describe('sensor', () => {
     expect(() => makeSensor(sensor)).throws(ValidationError);
   });
 
-  it('must not allow setting next gateway time to a time before the last gateway time', () => {
+  it('should not allow setting next gateway time to a time before the last gateway time', () => {
     const before = new Date();
     const after = new Date(before.getTime() + 5000); // 5 seconds after before
 
@@ -45,7 +45,7 @@ describe('sensor', () => {
     expect(() => makeSensor(sensor)).throws(ValidationError);
   });
 
-  it('must contain devId', () => {
+  it('should contain devId', () => {
     let sensor = makeFakeSensor({devId: undefined});
     expect(() => makeSensor(sensor)).throws(ValidationError);
 
@@ -62,7 +62,7 @@ describe('sensor', () => {
     expect(() => makeSensor(sensor)).throws(ValidationError);
   });
 
-  it('must not allow setting invalid node status value', () => {
+  it('should not allow setting invalid node status value', () => {
     let sensor = makeFakeSensor({nodeStatus: 'INVALID'});
     expect(() => makeSensor(sensor)).throws(ValidationError);
 
@@ -79,7 +79,7 @@ describe('sensor', () => {
     expect(() => makeSensor(sensor)).throws(ValidationError);
   });
 
-  it('must not allow setting invalid node status value through set status method', () => {
+  it('should not allow setting invalid node status value through set status method', () => {
     const sensor = makeSensor(makeFakeSensor());
 
     expect(() => sensor.setNodeStatus('INVALID')).throws(ValidationError);
@@ -89,16 +89,19 @@ describe('sensor', () => {
     expect(() => sensor.setNodeStatus(false)).throws(ValidationError);
   });
 
-  it('must not allow setting an invalid gateway time through set next gateway time method', () => {
-    const before = new Date();
-    const after = new Date(before.getTime() + 5000); // 5 seconds after
+  it(
+      'should not allow setting an invalid gateway time through set next gateway time method',
+      () => {
+        const before = new Date();
+        const after = new Date(before.getTime() + 5000); // 5 seconds after
 
-    const sensor = makeSensor(makeFakeSensor({
-      lastGatewayTime: before,
-      nextGatewayTime: after,
-    }));
+        const sensor = makeSensor(makeFakeSensor({
+          lastGatewayTime: before,
+          nextGatewayTime: after,
+        }));
 
-    expect(() => sensor.setNextGatewayTime(before)).throws(ValidationError);
-  });
+        expect(() => sensor.setNextGatewayTime(before)).throws(ValidationError);
+      }
+  );
 });
 
