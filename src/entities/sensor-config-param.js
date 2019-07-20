@@ -14,6 +14,7 @@ module.exports = function buildMakeSensorConfigParam({ConfigurationAdapter}) {
     validateValue(value);
 
     const createdAt = new Date();
+    let updatedAt = new Date();
 
     return Object.freeze({
       getKey: () => key,
@@ -23,9 +24,10 @@ module.exports = function buildMakeSensorConfigParam({ConfigurationAdapter}) {
       setValue: (valueValue) => {
         validateValue(valueValue);
         value = valueValue;
+        updatedAt = new Date();
       },
       getCreatedAt: () => createdAt,
-      getUpdatedAt: () => createdAt,
+      getUpdatedAt: () => updatedAt,
     });
 
     function validateKey(keyValue) {
