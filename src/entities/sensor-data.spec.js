@@ -52,4 +52,18 @@ describe('sensor-data', () => {
     sensorData = makeFakeSensorData({byteSize: 1, value: 'ABA'});
     expect(() => makeSensorData(sensorData)).throws(ValidationError);
   });
+
+  it('should not throw any exceptions', () => {
+    const fakeSensorData = makeFakeSensorData();
+    const {byteSize, value} = fakeSensorData;
+
+    let sensorData;
+    expect(() => sensorData = makeSensorData(fakeSensorData)).to.not.throws();
+
+    expect(sensorData.getByteSize()).equals(byteSize);
+    expect(sensorData.getValue()).equals(value);
+    expect(sensorData.isSavedToDb()).equals(false);
+    sensorData.saved();
+    expect(sensorData.isSavedToDb()).equals(true);
+  });
 });
