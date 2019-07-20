@@ -2,7 +2,7 @@
 const ValidationError = require('./exceptions/ValidationError');
 const IllegalArgumentError = require('./exceptions/IllegalArgumentError');
 
-module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
+module.exports = function buildMakeSensor({makeSensorConfigParam, makeSensorData}) {
   return function makeSensor({
     lastGatewayTime,
     nextGatewayTime,
@@ -58,7 +58,7 @@ module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
               `Config param key: ${key}`
           );
         } else {
-          const createdSensorConfigParam = makeSensorConfig({key, value});
+          const createdSensorConfigParam = makeSensorConfigParam({key, value});
           sensorConfig.push(createdSensorConfigParam);
         }
       },

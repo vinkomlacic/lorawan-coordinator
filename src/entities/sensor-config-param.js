@@ -1,8 +1,8 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
 
-module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
-  return function makeSensorConfig({
+module.exports = function buildMakeSensorConfigParam({ConfigurationAdapter}) {
+  return function makeSensorConfigParam({
     key,
     value,
   }) {
@@ -30,13 +30,13 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
 
     function validateKey(keyValue) {
       if (!key) {
-        throw new ValidationError('SensorConfig', 'SensorConfig must contain key');
+        throw new ValidationError('SensorConfigParam', 'SensorConfigParam must contain key');
       }
 
       const configurationKeys = ConfigurationAdapter.getConfigurationKeys();
       if (!configurationKeys.includes(keyValue)) {
         throw new ValidationError(
-            'SensorConfig',
+            'SensorConfigParam',
             'key does not exist\n' +
             `key: ${keyValue}`
         );
@@ -45,12 +45,12 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
 
     function validateValue(valueValue) {
       if (!valueValue) {
-        throw new ValidationError('SensorConfig', 'SensorConfig must contain value');
+        throw new ValidationError('SensorConfigParam', 'SensorConfigParam must contain value');
       }
 
       if (!(typeof valueValue === 'string')) {
         throw new ValidationError(
-            'SensorConfig',
+            'SensorConfigParam',
             'Value must be a string\n' +
             `Provided type: ${typeof valueValue}`
         );
@@ -60,7 +60,7 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
       const hexString = hexNumber.toString(16);
       if (hexString.toLowerCase() !== valueValue.toLowerCase()) {
         throw new ValidationError(
-            'SensorConfig',
+            'SensorConfigParam',
             'Value is not a valid hex encoded string\n' +
             `Value: ${valueValue}`
         );
@@ -68,7 +68,7 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
 
       if (valueValue.length !== (byteSize * 2)) {
         throw new ValidationError(
-            'SensorConfig',
+            'SensorConfigParam',
             'Value length and byte size do not match\n' +
             `Value length: ${valueValue.length}\n` +
             `Byte size provided: ${byteSize}`

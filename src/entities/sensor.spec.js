@@ -2,11 +2,11 @@
 const ValidationError = require('./exceptions/ValidationError');
 const ConfigurationAdapter = require('../../test/fixtures/configuration/configuration-adapter');
 const makeFakeSensorConfig =
-    require('../../test/fixtures/entities/sensor-config')({ConfigurationAdapter});
+    require('../../test/fixtures/entities/sensor-config-param')({ConfigurationAdapter});
 const makeFakeSensorData = require('../../test/fixtures/entities/sensor-data');
 const makeFakeSensor = require('../../test/fixtures/entities/sensor');
 
-const makeSensorConfig = require('./sensor-config')({ConfigurationAdapter});
+const makeSensorConfig = require('./sensor-config-param')({ConfigurationAdapter});
 const makeSensorData = require('./sensor-data')();
 const makeSensor = require('./sensor')({makeSensorConfig, makeSensorData});
 
