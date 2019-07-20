@@ -5,7 +5,7 @@ const makeSensor = require('./sensor')({
   makeSensorConfig: () => null,
   makeSensorData: () => null,
 });
-const makeFakeSensor = require('../../test/fixtures/sensor');
+const makeFakeSensor = require('../../test/fixtures/entities/sensor');
 
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
