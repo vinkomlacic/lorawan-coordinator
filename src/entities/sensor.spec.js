@@ -1,11 +1,14 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
-// TODO: import real make sensor config and make sensor data
-const makeSensor = require('./sensor')({
-  makeSensorConfig: () => null,
-  makeSensorData: () => null,
-});
+const ConfigurationAdapter = require('../../test/fixtures/configuration/configuration-adapter');
+const makeFakeSensorConfig =
+    require('../../test/fixtures/entities/sensor-config')({ConfigurationAdapter});
+const makeFakeSensorData = require('../../test/fixtures/entities/sensor-data');
 const makeFakeSensor = require('../../test/fixtures/entities/sensor');
+
+const makeSensorConfig = require('./sensor-config')({ConfigurationAdapter});
+const makeSensorData = require('./sensor-data')();
+const makeSensor = require('./sensor')({makeSensorConfig, makeSensorData});
 
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
@@ -103,5 +106,45 @@ describe('sensor', () => {
         expect(() => sensor.setNextGatewayTime(before)).throws(ValidationError);
       }
   );
+
+  it('should not throw any exceptions', () => {
+    const fakeSensor = makeFakeSensor();
+    const {lastGatewayTime, nextGatewayTime, devId, nodeStatus} = fakeSensor;
+
+    let sensor;
+    expect(() => sensor = makeSensor(fakeSensor)).not.throws();
+
+    expect(sensor.getLastGatewayTime()).equals(lastGatewayTime);
+    expect(sensor.getNextGatewayTime()).equals(nextGatewayTime);
+    expect(sensor.getDevId()).equals(devId);
+    expect(sensor.getNodeStatus()).equals(nodeStatus);
+
+    const newNextGatewayTime = new Date();
+    expect(() => sensor.setNextGatewayTime(newNextGatewayTime)).not.throws();
+
+    expect(sensor.getLastGatewayTime()).equals(nextGatewayTime);
+    expect(sensor.getNextGatewayTime()).equals(newNextGatewayTime);
+
+    const fakeSensorConfigParam = makeFakeSensorConfig();
+    expect(() => sensor.addSensorConfigParam(fakeSensorConfigParam)).not.throws();
+    expect(sensor.getSensorConfig()[0].getKey()).equals(fakeSensorConfigParam.key);
+    expect(sensor.getSensorConfig()[0].getValue()).equals(fakeSensorConfigParam.value);
+
+    const updateValueLength = ConfigurationAdapter.getByteSizeForKey(fakeSensorConfigParam.key);
+    let updateValue = '';
+    for (let i = 0; i < updateValueLength; i++) {
+      updateValue += 'AA';
+    }
+    expect(() => sensor.updateSensorConfigParam({
+      key: fakeSensorConfigParam.key,
+      value: updateValue,
+    })).not.throws();
+    expect(sensor.getSensorConfig()[0].getValue()).equals(updateValue);
+
+    const fakeSensorData = makeFakeSensorData();
+    expect(() => sensor.addSensorData(fakeSensorData)).not.throws();
+    expect(sensor.getSensorData()[0].getByteSize()).equals(fakeSensorData.byteSize);
+    expect(sensor.getSensorData()[0].getValue()).equals(fakeSensorData.value);
+  });
 });
 

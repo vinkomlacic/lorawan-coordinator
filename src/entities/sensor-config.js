@@ -8,7 +8,7 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
   }) {
     validateKey(key);
 
-    const byteSize = ConfigurationAdapter.getByteSizeForKey(key)
+    const byteSize = ConfigurationAdapter.getByteSizeForKey(key);
     const format = ConfigurationAdapter.getFormatForKey(key);
 
     validateValue(value);
@@ -20,6 +20,10 @@ module.exports = function buildMakeSensorConfig({ConfigurationAdapter}) {
       getByteSize: () => byteSize,
       getFormat: () => format,
       getValue: () => value,
+      setValue: (valueValue) => {
+        validateValue(valueValue);
+        value = valueValue;
+      },
       getCreatedAt: () => createdAt,
       getUpdatedAt: () => createdAt,
     });

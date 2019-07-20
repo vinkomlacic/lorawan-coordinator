@@ -1,5 +1,6 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
+const IllegalArgumentError = require('./exceptions/IllegalArgumentError');
 
 module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
   return function makeSensor({
@@ -13,9 +14,8 @@ module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
     validateDevId(devId);
     validateNodeStatus(nodeStatus);
 
-    // TODO: finish after writing SensorConfig entity
-    let sensorConfig = makeSensorConfig();
-    let sensorData = [];
+    const sensorConfig = [];
+    const sensorData = [];
 
     const createdAt = new Date();
     let updatedAt = new Date();
@@ -27,7 +27,6 @@ module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
       getNodeStatus: () => nodeStatus,
       getSensorConfig: () => sensorConfig,
       getSensorData: () => sensorData,
-      getSavedSensorData: () => sensorData.filter((value) => value.isSavedToDb()),
       getCreatedAt: () => createdAt,
       getUpdatedAt: () => updatedAt,
       setNodeStatus: (nodeStatusValue) => {
@@ -47,12 +46,39 @@ module.exports = function buildMakeSensor({makeSensorConfig, makeSensorData}) {
         nextGatewayTime = nextGatewayTimeValue;
         updatedAt = new Date();
       },
-      // TODO: add validation
-      setSensorConfig: (sensorConfigValue) => {
-        sensorConfig = sensorConfigValue;
+      addSensorConfigParam: ({key, value}) => {
+        const sensorConfigParam = sensorConfig.find((configParam) => {
+          return configParam.getKey() === key;
+        });
+
+        if (sensorConfigParam) {
+          throw new IllegalArgumentError(
+              'addSensorConfigParam',
+              'Config param already exists\n' +
+              `Config param key: ${key}`
+          );
+        } else {
+          const createdSensorConfigParam = makeSensorConfig({key, value});
+          sensorConfig.push(createdSensorConfigParam);
+        }
       },
-      addSensorData: (sensorDataValue) => {
-        sensorData = [...sensorData, makeSensorData(sensorDataValue)];
+      updateSensorConfigParam: ({key, value}) => {
+        const sensorConfigParam = sensorConfig.find((configParam) => {
+          return configParam.getKey() === key;
+        });
+
+        if (sensorConfigParam) {
+          sensorConfigParam.setValue(value);
+        } else {
+          throw new IllegalArgumentError(
+              'updateSensorConfigParam',
+              'Config param does not exist\n' +
+              `Config param key: ${key}`
+          );
+        }
+      },
+      addSensorData: ({byteSize, value}) => {
+        sensorData.push(makeSensorData({byteSize, value}));
       },
     });
 
