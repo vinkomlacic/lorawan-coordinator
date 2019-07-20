@@ -15,7 +15,7 @@ module.exports = function buildMakeSensorData() {
     let updatedAt = new Date();
 
     return Object.freeze({
-      getType: () => byteSize,
+      getByteSize: () => byteSize,
       getValue: () => value,
       isSavedToDb: () => isSavedToDb,
       getCreatedAt: () => createdAt,
@@ -27,7 +27,7 @@ module.exports = function buildMakeSensorData() {
     });
 
     function validateType(byteSizeValue) {
-      if (!(typeof byteSizeValue !== 'number')) {
+      if (typeof byteSizeValue !== 'number') {
         throw new ValidationError('SensorData', 'Byte size must be a number');
       }
 
@@ -53,7 +53,8 @@ module.exports = function buildMakeSensorData() {
         );
       }
 
-      const hexString = Number.parseInt(valueValue, 16);
+      const hexNumber = Number.parseInt(valueValue, 16);
+      const hexString = hexNumber.toString(16);
       if (hexString.toLowerCase() !== valueValue.toLowerCase()) {
         throw new ValidationError(
             'SensorData',
@@ -62,7 +63,7 @@ module.exports = function buildMakeSensorData() {
         );
       }
 
-      if ((valueValue.length * 2) !== byteSize) {
+      if (valueValue.length !== (byteSize * 2)) {
         throw new ValidationError(
             'SensorData',
             'Value length and byte size do not match\n' +
