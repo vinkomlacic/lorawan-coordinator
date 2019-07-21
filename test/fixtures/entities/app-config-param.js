@@ -1,9 +1,10 @@
 'use strict';
 const faker = require('faker');
+const defaultAppConfig = require('../../../src/default-app-configuration');
 
 module.exports = function makeFakeAppConfigParam(overrides = {}) {
-  const key = faker.hacker.noun().toUpperCase();
-  const value = faker.random.number(1000).toString();
+  const key = faker.random.arrayElement(Object.keys(defaultAppConfig));
+  const value = defaultAppConfig[key];
 
   const appConfigParam = {
     key,

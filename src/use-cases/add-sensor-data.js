@@ -1,4 +1,4 @@
-'use-strict';
+'use strict';
 
 module.exports = function buildAddSensorData({sensorDataDao, validateSensor}) {
   return async function addSensorData({sensor, sensorData}) {
