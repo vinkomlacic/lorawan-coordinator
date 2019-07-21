@@ -22,7 +22,7 @@ module.exports = function buildLoadSensorConfig({
         if (error instanceof DatabaseEntityNotFoundError) {
           const sensorConfigParam = makeSensorConfigParam({
             key: sensorConfigParamKey,
-            value: defaultSensorConfig[sensorConfigParamKey].value,
+            value: convertDecimalToHexString(defaultSensorConfig[sensorConfigParamKey].value),
           });
           if (saveSensorConfig) {
             await sensorConfigDao.save(sensor, sensorConfigParam);
@@ -31,6 +31,13 @@ module.exports = function buildLoadSensorConfig({
         } else {
           throw error;
         }
+      }
+    }
+
+    function convertDecimalToHexString(decimalString) {
+      if (decimalString && typeof decimalString === 'string') {
+        const number = Number.parseInt(decimalString, 10);
+        return number.toString(16);
       }
     }
   };
