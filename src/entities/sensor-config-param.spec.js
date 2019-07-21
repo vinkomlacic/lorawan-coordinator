@@ -1,10 +1,11 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
 // TODO: replace with a real configuration adapter after implementing
-const ConfigurationAdapter = require('../../test/fixtures/configuration/configuration-adapter');
-const makeSensorConfigParam = require('./sensor-config-param')({ConfigurationAdapter});
+const SensorConfigurationAdapter =
+    require('../../test/fixtures/configuration/sensor-configuration-adapter');
+const makeSensorConfigParam = require('./sensor-config-param')({SensorConfigurationAdapter});
 const makeFakeSensorConfigParam =
-    require('../../test/fixtures/entities/sensor-config-param')({ConfigurationAdapter});
+    require('../../test/fixtures/entities/sensor-config-param')({SensorConfigurationAdapter});
 
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
@@ -39,7 +40,7 @@ describe('sensor-config-param', () => {
 
     sensorConfigParam = makeFakeSensorConfigParam();
     let invalidStringOfValidLength = '';
-    for (let i = 0; i < ConfigurationAdapter.getByteSizeForKey(sensorConfigParam.key); i++) {
+    for (let i = 0; i < SensorConfigurationAdapter.getByteSizeForKey(sensorConfigParam.key); i++) {
       invalidStringOfValidLength += '-.'; // append non hex chars
     }
     sensorConfigParam.value = invalidStringOfValidLength;
@@ -66,8 +67,8 @@ describe('sensor-config-param', () => {
     expect(() => sensorConfig = makeSensorConfigParam(fakeSensorConfigParam)).not.throws();
 
     expect(sensorConfig.getKey()).equals(key);
-    expect(sensorConfig.getByteSize()).equals(ConfigurationAdapter.getByteSizeForKey(key));
-    expect(sensorConfig.getFormat()).equals(ConfigurationAdapter.getFormatForKey(key));
+    expect(sensorConfig.getByteSize()).equals(SensorConfigurationAdapter.getByteSizeForKey(key));
+    expect(sensorConfig.getFormat()).equals(SensorConfigurationAdapter.getFormatForKey(key));
     expect(sensorConfig.getValue()).equals(value);
   });
 });

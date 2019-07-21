@@ -1,15 +1,15 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
 
-module.exports = function buildMakeSensorConfigParam({ConfigurationAdapter}) {
+module.exports = function buildMakeSensorConfigParam({SensorConfigurationAdapter}) {
   return function makeSensorConfigParam({
     key,
     value,
   }) {
     validateKey(key);
 
-    const byteSize = ConfigurationAdapter.getByteSizeForKey(key);
-    const format = ConfigurationAdapter.getFormatForKey(key);
+    const byteSize = SensorConfigurationAdapter.getByteSizeForKey(key);
+    const format = SensorConfigurationAdapter.getFormatForKey(key);
 
     validateValue(value);
 
@@ -35,7 +35,7 @@ module.exports = function buildMakeSensorConfigParam({ConfigurationAdapter}) {
         throw new ValidationError('SensorConfigParam', 'SensorConfigParam must contain key');
       }
 
-      const configurationKeys = ConfigurationAdapter.getConfigurationKeys();
+      const configurationKeys = SensorConfigurationAdapter.getConfigurationKeys();
       if (!configurationKeys.includes(keyValue)) {
         throw new ValidationError(
             'SensorConfigParam',

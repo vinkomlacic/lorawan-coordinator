@@ -1,12 +1,12 @@
 'use strict';
 const faker = require('faker');
 
-module.exports = function buildMakeFakeSensorConfigParam({ConfigurationAdapter}) {
+module.exports = function buildMakeFakeSensorConfigParam({SensorConfigurationAdapter}) {
   return function makeFakeSensorConfigParam(overrides = {}) {
-    const configurationKeys = ConfigurationAdapter.getConfigurationKeys();
+    const configurationKeys = SensorConfigurationAdapter.getConfigurationKeys();
     const key = faker.random.arrayElement(configurationKeys);
 
-    const byteSize = ConfigurationAdapter.getByteSizeForKey(key);
+    const byteSize = SensorConfigurationAdapter.getByteSizeForKey(key);
     const buffer = Buffer.alloc(byteSize);
 
     for (let i = 0; i < byteSize; i++) {

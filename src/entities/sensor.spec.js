@@ -1,14 +1,14 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
-const ConfigurationAdapter = require('../../test/fixtures/configuration/configuration-adapter');
+const SensorConfigurationAdapter = require('../../test/fixtures/configuration/sensor-configuration-adapter');
 const makeFakeSensorConfig =
-    require('../../test/fixtures/entities/sensor-config-param')({ConfigurationAdapter});
+    require('../../test/fixtures/entities/sensor-config-param')({SensorConfigurationAdapter});
 const makeFakeSensorData = require('../../test/fixtures/entities/sensor-data');
 const makeFakeSensor = require('../../test/fixtures/entities/sensor');
 
-const makeSensorConfig = require('./sensor-config-param')({ConfigurationAdapter});
+const makeSensorConfigParam = require('./sensor-config-param')({SensorConfigurationAdapter});
 const makeSensorData = require('./sensor-data')();
-const makeSensor = require('./sensor')({makeSensorConfig, makeSensorData});
+const makeSensor = require('./sensor')({makeSensorConfigParam, makeSensorData});
 
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
@@ -130,7 +130,7 @@ describe('sensor', () => {
     expect(sensor.getSensorConfig()[0].getKey()).equals(fakeSensorConfigParam.key);
     expect(sensor.getSensorConfig()[0].getValue()).equals(fakeSensorConfigParam.value);
 
-    const updateValueLength = ConfigurationAdapter.getByteSizeForKey(fakeSensorConfigParam.key);
+    const updateValueLength = SensorConfigurationAdapter.getByteSizeForKey(fakeSensorConfigParam.key);
     let updateValue = '';
     for (let i = 0; i < updateValueLength; i++) {
       updateValue += 'AA';

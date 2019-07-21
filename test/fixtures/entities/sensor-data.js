@@ -4,7 +4,7 @@ const faker = require('faker');
 module.exports = function makeFakeSensorData(overrides = {}) {
   let byteSize = 0;
   while (byteSize === 0) {
-    byteSize = faker.random.number(10);
+    byteSize = faker.random.number(6);
   }
 
   const buffer = Buffer.alloc(byteSize);
