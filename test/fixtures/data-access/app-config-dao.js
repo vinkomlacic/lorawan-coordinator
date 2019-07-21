@@ -1,6 +1,6 @@
 'use strict';
 const defaultAppConfig = require('../../../src/default-app-configuration.json');
-const {makeAppConfig} = require('../../../src/entities');
+const {makeAppConfigParam} = require('../../../src/entities');
 
 // TODO: implement with mock database
 module.exports = function makeAppConfigDao({db}) {
@@ -21,7 +21,7 @@ module.exports = function makeAppConfigDao({db}) {
     },
     getConfigParamByKey: async (key) => {
       if (Object.keys(defaultAppConfig).includes(key)) {
-        return makeAppConfig({key, value: defaultAppConfig[key]});
+        return makeAppConfigParam({key, value: defaultAppConfig[key]});
       } else {
         return null;
       }

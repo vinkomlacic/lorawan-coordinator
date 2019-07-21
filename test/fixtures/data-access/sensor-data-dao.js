@@ -1,13 +1,13 @@
 'use strict';
 // TODO: finish with mock db
 module.exports = Object.freeze({
-  save: async (object) => {
-    return object;
+  save: async (sensor, sensorData) => {
+    return sensorData;
   },
-  saveOrUpdate: async (object) => {
-    return object;
+  saveOrUpdate: async (sensor, sensorData) => {
+    return sensorData;
   },
-  update: async (object) => {
-    return object;
+  update: async (sensor, sensorData) => {
+    return sensorData;
   },
 });
