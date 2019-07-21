@@ -1,0 +1,122 @@
+{
+  "SLEEP_PERIOD": {
+    "format": "uint16",
+    "byteSize": "2",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "30"
+  },
+  "OFFSET": {
+    "format": "uint16",
+    "byteSize": "2",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "ABSOLUTE_TIME": {
+    "format": "uint32",
+    "byteSize": "4",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "125000"
+  },
+  "BACKOFF_TIMEOUT": {
+    "format": "uint16",
+    "byteSize": "2",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "1500"
+  },
+  "RETRY_LIMIT": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "5"
+  },
+  "CONTENTION_WINDOW_MAX": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "100"
+  },
+  "REQ_ACK": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "ADR": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "CHANNEL": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "SPREADING_FACTOR": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "BANDWIDTH": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "CODE_RATE": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "TX_POWER": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "RX_PERIOD": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  },
+  "RESET": {
+    "format": "uint8",
+    "byteSize": "1",
+    "integer": {
+      "signed": "false"
+    },
+    "value": "0"
+  }
+}
