@@ -1,6 +1,8 @@
 'use strict';
 const defaultAppConfig = require('../../../src/default-app-configuration.json');
 const {makeAppConfigParam} = require('../../../src/entities');
+const DatabaseEntityNotFoundError =
+  require('../../../src/data-access/exceptions/DatabaseEntityNotFoundError');
 
 // TODO: implement with mock database
 module.exports = function makeAppConfigDao({db}) {
@@ -23,7 +25,7 @@ module.exports = function makeAppConfigDao({db}) {
       if (Object.keys(defaultAppConfig).includes(key)) {
         return makeAppConfigParam({key, value: defaultAppConfig[key]});
       } else {
-        return null;
+        throw new DatabaseEntityNotFoundError('AppConfigParam');
       }
     },
     save: async (object) => object,

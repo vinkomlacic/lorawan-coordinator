@@ -1,6 +1,8 @@
 'use strict';
 const defaultSensorConfig = require('../../../src/default-sensor-configuration');
-const {makeSensorConfig} = require('../../../src/entities');
+const {makeSensorConfigParam} = require('../../../src/entities');
+const DatabaseEntityNotFoundError =
+  require('../../../src/data-access/exceptions/DatabaseEntityNotFoundError');
 
 // TODO: implement with mock database
 module.exports = function makeSensorConfigDao({db}) {
@@ -10,7 +12,7 @@ module.exports = function makeSensorConfigDao({db}) {
     getKeys: async () => Object.keys(defaultSensorConfig),
     getConfigParams: async () => {
       for (const configParam of Object.keys(defaultSensorConfig)) {
-        const createdConfigParam = makeSensorConfig({
+        const createdConfigParam = makeSensorConfigParam({
           key: configParam,
           value: defaultSensorConfig[configParam].value,
         });
@@ -19,11 +21,15 @@ module.exports = function makeSensorConfigDao({db}) {
 
       return configParams;
     },
-    getConfigParamByKey: async (key) => {
+    getConfigParamByKey: async (sensor, key) => {
+      if (!sensor) {
+        throw new DatabaseEntityNotFoundError('SensorConfigParam');
+      }
+
       if (Object.keys(defaultSensorConfig).includes(key)) {
-        return makeSensorConfig({key, value: defaultSensorConfig[key].value});
+        return makeSensorConfigParam({key, value: defaultSensorConfig[key].value});
       } else {
-        return null;
+        throw new DatabaseEntityNotFoundError('SensorConfigParam');
       }
     },
     save: async (sensor, sensorConfigParam) => sensorConfigParam,

@@ -1,10 +1,11 @@
 'use strict';
 const faker = require('faker');
+const defaultSensorConfig = require('../../../src/default-sensor-configuration');
 
 module.exports = function makeFakeSensorConfigParam(overrides = {}) {
-  const key = faker.hacker.noun().toUpperCase();
+  const key = faker.random.arrayElement(Object.keys(defaultSensorConfig));
 
-  const byteSize = faker.random.number(5) + 1; // [1, 6]
+  const byteSize = parseInt(defaultSensorConfig[key].byteSize, 10);
   const buffer = Buffer.alloc(byteSize);
 
   for (let i = 0; i < byteSize; i++) {
