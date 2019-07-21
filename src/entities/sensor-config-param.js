@@ -59,7 +59,7 @@ module.exports = function buildMakeSensorConfigParam({SensorConfigurationAdapter
       }
 
       const hexNumber = Number.parseInt(valueValue, 16);
-      const hexString = hexNumber.toString(16);
+      const hexString = hexNumber.toString(16).padStart(valueValue.length, '0');
       if (hexString.toLowerCase() !== valueValue.toLowerCase()) {
         throw new ValidationError(
             'SensorConfigParam',
