@@ -1,21 +1,17 @@
 'use strict';
 const faker = require('faker');
 
-module.exports = function buildMakeFakeAppConfigParam({AppConfigurationAdapter}) {
-  return function makeFakeAppConfigParam(overrides = {}) {
-    const appConfigKeys = AppConfigurationAdapter.getKeys();
+module.exports = function makeFakeAppConfigParam(overrides = {}) {
+  const key = faker.hacker.noun().toUpperCase();
+  const value = faker.random.number(1000).toString();
 
-    const key = faker.random.arrayElement(appConfigKeys);
-    const value = faker.random.number(1000).toString();
+  const appConfigParam = {
+    key,
+    value,
+  };
 
-    const appConfigParam = {
-      key,
-      value,
-    };
-
-    return {
-      ...appConfigParam,
-      ...overrides,
-    };
+  return {
+    ...appConfigParam,
+    ...overrides,
   };
 };

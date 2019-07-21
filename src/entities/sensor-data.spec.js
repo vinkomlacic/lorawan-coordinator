@@ -1,6 +1,6 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
-const makeSensorData = require('./sensor-data')();
+const makeSensorData = require('./sensor-data');
 const makeFakeSensorData = require('../../test/fixtures/entities/sensor-data');
 
 const {describe, it} = require('mocha');

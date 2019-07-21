@@ -1,13 +1,11 @@
 'use strict';
 const ValidationError = require('./exceptions/ValidationError');
-const SensorConfigurationAdapter = require('../../test/fixtures/configuration/sensor-configuration-adapter');
-const makeFakeSensorConfig =
-    require('../../test/fixtures/entities/sensor-config-param')({SensorConfigurationAdapter});
+const makeFakeSensorConfig =require('../../test/fixtures/entities/sensor-config-param');
 const makeFakeSensorData = require('../../test/fixtures/entities/sensor-data');
 const makeFakeSensor = require('../../test/fixtures/entities/sensor');
 
-const makeSensorConfigParam = require('./sensor-config-param')({SensorConfigurationAdapter});
-const makeSensorData = require('./sensor-data')();
+const makeSensorConfigParam = require('./sensor-config-param');
+const makeSensorData = require('./sensor-data');
 const makeSensor = require('./sensor')({makeSensorConfigParam, makeSensorData});
 
 const {describe, it} = require('mocha');
@@ -107,6 +105,7 @@ describe('sensor', () => {
       }
   );
 
+  // TODO: refactor to smaller tests
   it('should not throw any exceptions', () => {
     const fakeSensor = makeFakeSensor();
     const {lastGatewayTime, nextGatewayTime, devId, nodeStatus} = fakeSensor;
@@ -130,16 +129,11 @@ describe('sensor', () => {
     expect(sensor.getSensorConfig()[0].getKey()).equals(fakeSensorConfigParam.key);
     expect(sensor.getSensorConfig()[0].getValue()).equals(fakeSensorConfigParam.value);
 
-    const updateValueLength = SensorConfigurationAdapter.getByteSizeForKey(fakeSensorConfigParam.key);
-    let updateValue = '';
-    for (let i = 0; i < updateValueLength; i++) {
-      updateValue += 'AA';
-    }
     expect(() => sensor.updateSensorConfigParam({
       key: fakeSensorConfigParam.key,
-      value: updateValue,
+      value: 'ABABAB',
     })).not.throws();
-    expect(sensor.getSensorConfig()[0].getValue()).equals(updateValue);
+    expect(sensor.getSensorConfig()[0].getValue()).equals('ABABAB');
 
     const fakeSensorData = makeFakeSensorData();
     expect(() => sensor.addSensorData(fakeSensorData)).not.throws();
