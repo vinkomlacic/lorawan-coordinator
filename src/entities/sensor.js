@@ -60,6 +60,7 @@ module.exports = function buildMakeSensor({makeSensorConfigParam, makeSensorData
         } else {
           const createdSensorConfigParam = makeSensorConfigParam({key, value});
           sensorConfig.push(createdSensorConfigParam);
+          return createdSensorConfigParam;
         }
       },
       updateSensorConfigParam: ({key, value}) => {
@@ -69,6 +70,7 @@ module.exports = function buildMakeSensor({makeSensorConfigParam, makeSensorData
 
         if (sensorConfigParam) {
           sensorConfigParam.setValue(value);
+          return sensorConfigParam;
         } else {
           throw new IllegalArgumentError(
               'updateSensorConfigParam',
@@ -78,7 +80,9 @@ module.exports = function buildMakeSensor({makeSensorConfigParam, makeSensorData
         }
       },
       addSensorData: ({byteSize, value}) => {
-        sensorData.push(makeSensorData({byteSize, value}));
+        const sensorDataUnit = makeSensorData({byteSize, value});
+        sensorData.push(sensorDataUnit);
+        return sensorDataUnit;
       },
     });
 
