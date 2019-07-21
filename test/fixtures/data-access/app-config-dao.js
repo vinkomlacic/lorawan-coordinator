@@ -12,7 +12,7 @@ module.exports = function makeAppConfigDao({db}) {
     getKeys: async () => Object.keys(defaultAppConfig),
     getConfigParams: async () => {
       for (const configParam of Object.keys(defaultAppConfig)) {
-        const createdConfigParam = makeAppConfig({
+        const createdConfigParam = makeAppConfigParam({
           key: configParam,
           value: defaultAppConfig[configParam],
         });

@@ -8,6 +8,8 @@ module.exports = function makeSensorConfigParam({
   validateKey(key);
   validateValue(value);
 
+  let saved = false;
+
   const createdAt = new Date();
   let updatedAt = new Date();
 
@@ -19,6 +21,8 @@ module.exports = function makeSensorConfigParam({
       value = valueValue;
       updatedAt = new Date();
     },
+    isSaved: () => saved,
+    saved: () => saved = true,
     getCreatedAt: () => createdAt,
     getUpdatedAt: () => updatedAt,
   });

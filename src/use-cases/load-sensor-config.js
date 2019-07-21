@@ -7,21 +7,27 @@ module.exports = function buildLoadSensorConfig({
   validateSensor,
   DatabaseEntityNotFoundError,
 }) {
-  return async function loadSensorConfig({sensor}) {
+  return async function loadSensorConfig({sensor, saveSensorConfig = false}) {
     validateSensor({sensor});
     const sensorConfigAllowedParamKeys = await sensorConfigDao.getKeys();
 
     for (const sensorConfigParamKey of sensorConfigAllowedParamKeys) {
       try {
         const sensorConfigParam = await sensorConfigDao.getConfigParamByKey(sensorConfigParamKey);
-        await sensorConfigDao.save(sensor, sensorConfigParam);
+        if (saveSensorConfig) {
+          await sensorConfigDao.save(sensor, sensorConfigParam);
+          sensorConfigParam.saved();
+        }
       } catch (error) {
         if (error instanceof DatabaseEntityNotFoundError) {
           const sensorConfigParam = makeSensorConfigParam({
             key: sensorConfigParamKey,
             value: defaultSensorConfig[sensorConfigParamKey].value,
           });
-          await sensorConfigDao.save(sensor, sensorConfigParam);
+          if (saveSensorConfig) {
+            await sensorConfigDao.save(sensor, sensorConfigParam);
+            sensorConfigParam.saved();
+          }
         } else {
           throw error;
         }
