@@ -6,7 +6,7 @@ module.exports = function buildAddSensorData({sensorDataDao, validateSensor}) {
 
     const newSensorData = sensor.addSensorData(sensorData);
 
-    await sensorDataDao.save(newSensorData);
+    await sensorDataDao.save(sensor, newSensorData);
     newSensorData.saved();
   };
 };
