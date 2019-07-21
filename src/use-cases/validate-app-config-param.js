@@ -1,6 +1,11 @@
 'use strict';
 const IllegalAppConfigParam = require('./exceptions/IllegalAppConfigParamError');
-
+/**
+ * TODO: check if it is used anywhere and delete
+ * @deprecated
+ * @param {Object} appConfigDao
+ * @return {Function} validateAppConfigParam
+ */
 module.exports = function buildValidateAppConfigParam({appConfigDao}) {
   return async function validateAppConfigParam({appConfigParam}) {
     const keys = await appConfigDao.getKeys();
