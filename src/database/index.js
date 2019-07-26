@@ -11,6 +11,9 @@ module.exports = function makeDatabaseAdapters({
   const sensorConfigParamDbAdapter = require('./sensor-config-param-db-adapter')({
     bookshelf: bookshelfInstance,
   });
+  const sensorConfigParamTypeDbAdapter = require('./sensor-config-param-type-db-adapter')({
+    bookshelf: bookshelfInstance,
+  });
   const sensorDataDbAdapter = require('./sensor-data-db-adapter')({
     bookshelf: bookshelfInstance,
   });
@@ -23,6 +26,7 @@ module.exports = function makeDatabaseAdapters({
   return Object.freeze({
     appConfigParamDbAdapter,
     sensorConfigParamDbAdapter,
+    sensorConfigParamTypeDbAdapter,
     sensorDataDbAdapter,
     sensorDbAdapter,
   });
