@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r dotenv/config -i src/index.js",
-    "test": "mocha 'src/**/*.spec.js'"
+    "test": "mocha --reporter landing 'src/**/*.spec.js'"
   },
   "repository": {
     "type": "git",
