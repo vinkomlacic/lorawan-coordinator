@@ -3,7 +3,7 @@ module.exports = function makeDatabaseAdapters({
   knex,
   bookshelf,
 }) {
-  const bookshelfInstance = require('./database')({knex, bookshelf});
+  const bookshelfInstance = require('../database')({knex, bookshelf});
 
   const appConfigParamDbAdapter = require('./app-config-param-db-adapter')({
     bookshelf: bookshelfInstance,
